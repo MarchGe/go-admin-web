@@ -1,0 +1,9 @@
+@import "../dialog_common.css";
+
+.upsert .row .upload_v {
+    flex: 1;
+    overflow: hidden;
+}
+.upsert .row .value.upload_btn {
+    flex: none;
+}

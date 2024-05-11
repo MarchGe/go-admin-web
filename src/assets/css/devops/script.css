@@ -1,0 +1,20 @@
+@import "../dialog_common.css";
+
+.table_content .inner_content {
+    padding: 0 20px;
+}
+
+.table_content .inner_content .label {
+    font-weight: bold;
+    color: #606266;
+}
+
+.table_content .inner_content .script-code {
+    line-height: 1.5;
+    font-family: 'Courier New', Courier, monospace;
+    background-color: #f4f4f4;
+    padding: 15px;
+    border: 1px solid #d4d4d4;
+    border-radius: 5px;
+    overflow-x: auto;
+}

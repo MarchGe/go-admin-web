@@ -1,0 +1,135 @@
+.content {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding-top: 20px;
+}
+.p_info {
+    width: 80%;
+    padding-top: 20px;
+    padding-bottom: 30px;
+    display: flex;
+    align-items: stretch;
+    justify-content: center;
+}
+
+.p_info .p_left {
+    width: 180px;
+    flex: none;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    overflow: hidden;
+}
+
+.p_info .p_left .p_img_v, .p_info .p_left .p_img {
+    width: 128px;
+    height: 128px;
+    border-radius: 4px;
+}
+.p_info .p_left .p_img_v .avatar-uploader-icon {
+    font-size: 28px;
+    color: #8c939d;
+    text-align: center;
+    border: 1px dashed #d8d8d8;
+}
+
+.p_info .p_left .p_img_v .avatar-uploader-icon:hover {
+    border-color: #409eff;
+}
+
+.p_info .p_left .p_img_err {
+    border: 4px solid #ccc;
+    color: #ccc;
+    padding: 12px;
+    border-radius: 4px;
+}
+
+.p_info .p_left .p_nickname {
+    width: 128px;
+    text-align: center;
+    margin-top: 15px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-weight: bold;
+    color: #606266;
+}
+
+.p_info .h_line {
+    width: 1px;
+    background-color: #f2f2f2;
+}
+
+.p_info .p_right {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    overflow: hidden;
+    justify-content: space-between;
+}
+
+.p_info .p_right .info {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+}
+.p_info .p_right .info .row {
+    display: flex;
+    align-items: center;
+    margin-bottom: 20px;
+}
+.p_info .p_right .info .btns {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-top: 30px;
+}
+
+.p_info .p_right .p_name {
+    width: 80px;
+    flex: none;
+    text-align: right;
+    color: #606266;
+    font-weight: bold;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    padding-right: 12px;
+}
+
+.p_info .p_right .p_value {
+    flex: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    color: #606266;
+    display: flex;
+    align-items: center;
+}
+
+.update_btn {
+    font-size: 10px;
+    color: #409eff;
+    cursor: pointer;
+}
+
+.ch-passwd .row {
+    display: flex;
+    align-items: center;
+    margin: 10px 0 20px 0;
+}
+.ch-passwd .row .label {
+    width: 84px;
+    flex: none;
+    text-align: right;
+    font-weight: bold;
+    padding-right: 12px;
+    color: #606266;
+}
+.ch-passwd .row .value {
+    flex: 1;
+    margin-right: 20px;
+}

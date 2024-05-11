@@ -1,0 +1,40 @@
+.foot {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+}
+
+.foot .hint_v {
+    display: flex;
+    flex: 1;
+    justify-content: flex-start;
+    align-items: center;
+}
+.foot .hint_v .txt {
+    color: #a8a8a8;
+}
+.foot .hint_v .num {
+    padding: 0 2px;
+    color: #f56c6c;
+    font-weight: bold;
+}
+
+.upsert .row {
+    display: flex;
+    align-items: center;
+    margin: 10px 0 20px 0;
+}
+
+.upsert .row .label {
+    width: 84px;
+    flex: none;
+    text-align: right;
+    font-weight: bold;
+    padding-right: 12px;
+    color: #606266;
+}
+
+.upsert .row .value:not(.sort) {
+    flex: 1;
+    margin-right: 20px;
+}

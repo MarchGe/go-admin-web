@@ -1,0 +1,217 @@
+/* 修改滚动条的样式 */
+::-webkit-scrollbar {
+    width: 4px; /* 纵向滚动条宽度 */
+    height: 4px; /* 横向滚动条高度 */
+}
+::-webkit-scrollbar-thumb {
+    background-color: #999; /* 滑块背景颜色 */
+    border-radius: 2px; /* 滑块边框圆角 */
+}
+::-webkit-scrollbar-track {
+    background-color: #fff; /* 轨道背景颜色 */
+}
+::-webkit-scrollbar-button {
+    display: none; /* 隐藏滚动条按钮（上下箭头） */
+}
+body {
+    margin: 0;
+    padding: 0;
+    font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
+}
+
+a {
+    text-decoration: none;
+}
+
+._m-root {
+    width: 100vw;
+    height: 100vh;
+    display: flex;
+}
+
+._m-left {
+    width: 200px;
+    height: 100vh;
+    flex: none;
+    background-color: #222d32;
+    overflow-y: auto;
+}
+
+._m-left .menu {
+    width: 80%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+._m-left .el-icon {
+    max-width: 25px;
+    overflow: hidden;
+}
+
+._m-right {
+    height: 100vh;
+    overflow: scroll;
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    position: relative;
+}
+
+._m-right ._float-collapse {
+    position: absolute;
+    left: -44px;
+    top: 0;
+    background-color: #222d32;
+    width: 56px;
+    height: 56px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: rgba(255, 255, 255, 0.7);
+    border-top-right-radius: 12px;
+    border-bottom-right-radius: 12px;
+    cursor: pointer;
+}
+
+._m-right ._float-collapse:hover {
+    transform: translateX(44px);
+    transition-duration: 0.3s;
+}
+
+._m-right .header {
+    display: flex;
+    height: 56px;
+    --main-page-header-height: 56px;
+    --el-menu-text-color: #303133;
+    --el-menu-hover-text-color: #303133;
+    --el-menu-hover-bg-color: #ffffff;
+    --el-menu-active-color: #303133;
+    --el-menu-level: 0;
+}
+._m-right .header .el-menu-item, ._m-right .header .el-menu-item.is-active, ._m-right .header .el-sub-menu .el-sub-menu__title, ._m-right .header .el-sub-menu.is-active .el-sub-menu__title {
+    border-bottom: none;
+}
+._m-right .header ._m_blank-space {
+    flex-grow: 1;
+    overflow: hidden;
+}
+._m-right .header ._m_blank-space .custom-tab {
+    --el-tabs-header-height: var(--main-page-header-height);
+}
+._m-right .header ._m_blank-space .custom-tab .el-tabs__header {
+    border: none;
+}
+._m-right .header ._m_blank-space .custom-tab .el-tabs__nav {
+    border: none;
+}
+._m-right .header ._m_blank-space .custom-tab .el-tabs__nav .el-tabs__item {
+    border: none;
+}
+._m-right .header ._m_blank-space .el-tabs__nav-next, ._m-right .header ._m_blank-space .el-tabs__nav-prev {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    line-height: 0;
+    font-size: 14px;
+}
+._m-right .header ._m_blank-space .el-tabs__nav-next:hover, ._m-right .header ._m_blank-space .el-tabs__nav-prev:hover {
+    background-color: #f2f2f2;
+}
+._m-right .header ._menu-item-right {
+    padding: 0 10px;
+    color: #6a6a6a;
+}
+._m-right ._router-view {
+    flex: 1;
+}
+
+._m-right ._float-settings {
+    position: absolute;
+    top: -44px;
+    right: 0;
+    background-color: #dcdcdc;
+    width: 56px;
+    height: 56px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: rgba(34, 45, 50, 0.7);
+    border-bottom-left-radius: 12px;
+    border-bottom-right-radius: 12px;
+    cursor: pointer;
+    z-index: 1000;
+}
+
+._m-right ._float-settings:hover {
+    transform: translateY(44px);
+    transition-duration: 0.3s;
+}
+
+._m-pop-p-menu, ._m-pop-p-menu .el-menu--popup {
+    width: 100px;
+    min-width: 100px;
+}
+._m-pop-p-menu .el-menu--popup .el-menu-item {
+    justify-content: center;
+}
+
+.search_head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    padding: 14px;
+    overflow: hidden;
+    background-color: #f8f8f8;
+    margin-bottom: 10px;
+}
+.search_head .item {
+    margin: 6px;
+    flex: none;
+}
+.pagination {
+    justify-content: flex-end;
+    margin-top: 30px;
+    margin-bottom: 30px;
+    margin-right: 50px;
+}
+
+._required:before {
+    content: "*";
+    color: #FF0000;
+    font-weight: bold;
+    padding-right: 4px;
+}
+
+.scale-enter-active, .scale-leave-active {
+    transition: all 0.4s ease-in-out;
+}
+.scale-enter-from, .scale-leave-to {
+    opacity: 0;
+    transform: scale(0.95);
+}
+
+._drawer {
+    display: flex;
+    flex-direction: column;
+}
+._drawer .block {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+}
+._drawer .block .rows {
+    display: flex;
+    flex-direction: column;
+}
+._drawer .block .row {
+    display: flex;
+    align-items: center;
+    padding: 2px;
+}
+._drawer .block .row .name {
+    flex: 1;
+}
+._drawer .block .row .value {
+    flex: none;
+}
