@@ -3,6 +3,10 @@
 #### 介绍
 go-admin-web 是 go-admin-server 项目的前端部分，采用 Vue3 + ElementPlus + Vite 技术栈，实现基于RBAC的权限管理，提供服务器性能监控、Web Shell、一键部署等功能。后端项目 go-admin-server。
 
+#### 项目源码
+- GitHub: https://github.com/MarchGe/go-admin-web
+- Gitee: https://gitee.com/go-admin_1/go-admin-web
+
 #### 安装教程
 1. 修改src/config-dev.js
    ```javascript
