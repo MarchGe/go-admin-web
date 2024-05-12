@@ -9,7 +9,11 @@ go-admin-web 是 go-admin-server 项目的前端部分，采用 Vue3 + ElementPl
 
 #### 在线体验
 - https://go-admin.dy-technology.com
-
+  ```text
+  账号：root@example.com
+  密码：123456
+  ```
+  
 #### 安装教程
 1. 修改src/config-dev.js
    ```javascript
