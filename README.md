@@ -7,6 +7,9 @@ go-admin-web 是 go-admin-server 项目的前端部分，采用 Vue3 + ElementPl
 - GitHub: https://github.com/MarchGe/go-admin-web
 - Gitee: https://gitee.com/go-admin_1/go-admin-web
 
+#### 在线体验
+- https://go-admin.dy-technology.com
+
 #### 安装教程
 1. 修改src/config-dev.js
    ```javascript
