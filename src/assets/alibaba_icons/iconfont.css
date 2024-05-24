@@ -1,6 +1,6 @@
 @font-face {
   font-family: "iconfont"; /* Project id 4456016 */
-  src: url('iconfont.woff2?t=1712210434520') format('woff2');
+  src: url('iconfont.woff2?t=1716392144388') format('woff2');
 }
 
 .iconfont {
@@ -9,6 +9,22 @@
   font-style: normal;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+.icon-arrow-right:before {
+  content: "\e622";
+}
+
+.icon-arrow-left:before {
+  content: "\eac4";
+}
+
+.icon-ex-file:before {
+  content: "\eac3";
+}
+
+.icon-ex-dir:before {
+  content: "\e676";
 }
 
 .icon-fenxiang1:before {
