@@ -13,6 +13,7 @@ import OpLog from "./views/system/log/op/index.vue"
 import ExceptionLog from "./views/system/log/exception/index.vue"
 // 运维工具
 import Xterm from "./views/devops/xterm/index.vue"
+import Explorer from "./views/devops/explorer/index.vue"
 import Performance from "./views/devops/monitor/performance/index.vue"
 import PerformanceDetail from "./views/devops/monitor/performance/detail.vue"
 import Host from "./views/devops/host/index.vue"
@@ -37,6 +38,7 @@ const router = [
             {path: "/sys/log/exception", component: ExceptionLog},
             // 运维工具
             {path: "/devops/terminal", component: Xterm},
+            {path: "/devops/explorer", component: Explorer},
             {path: "/devops/monitor/performance", component: Performance},
             {path: "/devops/monitor/performance/detail", component: PerformanceDetail},
             {path: "/devops/host", component: Host},
