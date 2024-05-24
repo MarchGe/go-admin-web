@@ -116,6 +116,11 @@ const serverPaths = {
     ssePush: serverContextPath + "/sse/message-push",
     taskManifestLog: taskId => serverContextPath + "/sse/task/" + taskId + "/manifest-log",
     taskHostLog: taskId => serverContextPath + "/sse/task/" + taskId + "/host-log",
+    // explorer
+    explorerEntries: serverContextPath + "/devops/explorer/entries",
+    explorerDelete: serverContextPath + "/devops/explorer/entry",
+    explorerUpload: serverContextPath + "/devops/explorer/upload",
+    explorerDownload: serverContextPath + "/devops/explorer/download",
 }
 export {
     serverPaths,

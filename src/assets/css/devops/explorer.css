@@ -1,0 +1,85 @@
+.container {
+    display: flex;
+    flex-direction: column;
+}
+.head {
+    display: flex;
+    align-items: center;
+    flex-wrap: nowrap;
+    padding: 10px;
+    border-bottom: 1px solid #cccccc;
+}
+.head .arrow-icon {
+    margin: 0 6px;
+}
+.head .arrow {
+    font-size: 20px;
+    cursor: pointer;
+    color: #333333;
+}
+.head .arrow.disable {
+    color: #a8a8a8;
+}
+.head .path {
+    margin-left: 10px;
+    font-size: 16px;
+    color: #a8a8a8;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.head .refresh {
+    margin: 0 15px;
+    cursor: pointer;
+}
+.head .upload_btn {
+    margin-right: 20px;
+}
+.list {
+    padding: 20px;
+    display: flex;
+    flex-wrap: wrap;
+    align-content: flex-start;
+}
+.item_v {
+    width: 100px;
+    height: 100px;
+    margin: 5px;
+}
+.item_v .item {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.item .name {
+    width: 100%;
+    height: 34px;
+    font-size: 14px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: pre-wrap;
+    text-align: center;
+}
+
+.dir {
+    font-size: 60px;
+    color: #F5D471;
+}
+.file {
+    font-size: 50px;
+    color: #c8c8c8;
+}
+
+.empty-dir {
+    display: flex;
+    flex-direction: column;
+    flex: auto;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    color: #c8c8c8;
+}

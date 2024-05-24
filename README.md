@@ -7,6 +7,13 @@ go-admin-web 是 go-admin-server 项目的前端部分，采用 Vue3 + ElementPl
 - GitHub: https://github.com/MarchGe/go-admin-web
 - Gitee: https://gitee.com/go-admin_1/go-admin-web
 
+#### 在线体验
+- https://go-admin.dy-technology.com
+  ```text
+  账号：root@example.com
+  密码：123456
+  ```
+  
 #### 安装教程
 1. 修改src/config-dev.js
    ```javascript
@@ -66,6 +73,12 @@ server {
     }
     location /bg-admin/devops/app/upload {
         client_max_body_size 500m;
+        client_body_buffer_size 2m;
+        proxy_pass http://go-admin-server;
+        rewrite ^\/bg-(.*)$ /$1 break;
+    }
+    location /bg-admin/devops/explorer/upload {
+        client_max_body_size 1g;
         client_body_buffer_size 2m;
         proxy_pass http://go-admin-server;
         rewrite ^\/bg-(.*)$ /$1 break;
