@@ -121,11 +121,13 @@ const serverPaths = {
     explorerDelete: serverContextPath + "/devops/explorer/entry",
     explorerUpload: serverContextPath + "/devops/explorer/upload",
     explorerDownload: serverContextPath + "/devops/explorer/download",
+    explorerCreate: serverContextPath + "/devops/explorer/create",
     // host explorer
     hostExplorerEntries: serverContextPath + "/devops/explorer/sftp/entries",
     hostExplorerDelete: serverContextPath + "/devops/explorer/sftp/entry",
     hostExplorerUpload: serverContextPath + "/devops/explorer/sftp/upload",
     hostExplorerDownload: serverContextPath + "/devops/explorer/sftp/download",
+    hostExplorerCreate: serverContextPath + "/devops/explorer/sftp/create",
 }
 export {
     serverPaths,

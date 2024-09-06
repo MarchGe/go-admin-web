@@ -1,15 +1,17 @@
 <template>
   <div id="container" class="container">
-    <div class="head">
+    <div class="head" style="padding-top: 0; padding-bottom: 0;">
       <el-icon class="arrow-icon" size="24" @click="goBack" style="margin-left: 10px;"><i class="iconfont icon-arrow-left arrow" :class="x.pathStack.length === 0 ? 'disable': ''"></i></el-icon>
-      <span class="path"><el-tag type="info" effect="plain">{{x.hostStr}}</el-tag>{{x.crumbs}}</span>
+      <span class="path"><el-tag type="info" style="border-radius: 0; border: none; font-size: 14px; padding-top: 22px; padding-bottom: 22px;">{{x.hostStr}}</el-tag>{{x.crumbs}}</span>
       <span style="flex: auto;"></span>
       <div class="refresh" @click="refresh">
         <el-icon :class="x.isRefreshing ? 'is-loading' : ''" color="#8a8a8a" size="18">
           <Refresh/>
         </el-icon>
       </div>
-      <el-button class="upload_btn" type="primary" size="small" @click="uploadDialog" :disabled="!hasPermission('explorer_sftp:upload')">上传</el-button>
+      <el-button class="op_btn" type="primary" size="small" @click="uploadDialog" :disabled="!hasPermission('explorer_sftp:upload')">上传</el-button>
+      <el-button class="op_btn" color="#EFCB61" type="warning" size="small" style="color: #ffffff;" @click="createDialog" :disabled="!hasPermission('explorer_sftp:upload')">创建目录</el-button>
+      <el-button class="op_btn" color="#dcdcdc" size="small" style="margin-right: 20px; color: #666666;" @click="routeBack">返回</el-button>
     </div>
     <div class="list" v-if="x.entries.length > 0">
       <div class="item_v" v-for="item in x.entries" :key="item.name">
@@ -58,6 +60,17 @@
         </div>
       </el-upload>
     </el-dialog>
+    <!--创建目录弹框-->
+    <el-dialog class="upsert" v-model="x.showCreateDialog" title="创建目录" width="35%">
+      <div class="row">
+        <span class="label _required">名称</span>
+        <el-input class="value" v-model="x.inputDirName" placeholder="填写目录名称" maxlength="30"></el-input>
+      </div>
+      <template #footer>
+        <el-button @click="x.showCreateDialog = false">取消</el-button>
+        <el-button type="primary" :loading="x.btnState.isLoading" @click="doCreateDir">确定</el-button>
+      </template>
+    </el-dialog>
   </div>
 </template>
 <script setup>
@@ -94,7 +107,9 @@ const x = reactive({
   showDeleteDialog: false,
   showUploadDialog: false,
   opFileName: "",
-  isRefreshing: false
+  isRefreshing: false,
+  showCreateDialog: false,
+  inputDirName: ""
 })
 const upload = ref()
 
@@ -183,7 +198,7 @@ function openDir(dirName) {
 
 function downloadFile(fileName) {
   let parentDir = getParentDir();
-  let filePath = ""
+  let filePath
   if (parentDir === x.root) {
     filePath = parentDir + fileName
   } else {
@@ -209,7 +224,7 @@ function getParentDir() {
 
 function doDelete() {
   let parentDir = getParentDir();
-  let filePath = ""
+  let filePath
   if (parentDir === x.root) {
     filePath = parentDir + x.opFileName
   } else {
@@ -247,6 +262,29 @@ function uploadDialog() {
   x.showUploadDialog = true
 }
 
+function createDialog() {
+  x.showCreateDialog = true
+}
+
+function doCreateDir() {
+  x.btnState.loading()
+  const parentDir = getParentDir()
+  let params = {
+    hostId: parseInt(route.query.id),
+    dir: parentDir,
+    name: x.inputDirName
+  }
+  httpUtils.post(serverPaths.hostExplorerCreate, params, function () {
+    x.btnState.unLoading()
+    x.showCreateDialog = false
+    x.inputDirName = ""
+    uiUtils.showToast("success", "创建成功")
+    search(parentDir)
+  }, () => {
+    x.btnState.unLoading()
+  })
+}
+
 function beforeUpload () {
   x.formUploadData.dir = getParentDir()
   x.formUploadData.hostId = route.query.id
@@ -272,6 +310,10 @@ function handleUploadSuccess(res) {
 function handleUploadError(err) {
   console.error(err)
   uiUtils.showToast("error", err.toString())
+}
+
+function routeBack() {
+  router.back()
 }
 
 </script>

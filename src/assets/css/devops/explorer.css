@@ -1,3 +1,4 @@
+@import "../dialog_common.css";
 .container {
     display: flex;
     flex-direction: column;
@@ -8,6 +9,7 @@
     flex-wrap: nowrap;
     padding: 10px;
     border-bottom: 1px solid #cccccc;
+    flex: none;
 }
 .head .arrow-icon {
     margin: 0 6px;
@@ -32,14 +34,12 @@
     margin: 0 15px;
     cursor: pointer;
 }
-.head .upload_btn {
-    margin-right: 20px;
-}
 .list {
     padding: 20px;
     display: flex;
     flex-wrap: wrap;
     align-content: flex-start;
+    flex: 1;
 }
 .item_v {
     width: 100px;
