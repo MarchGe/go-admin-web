@@ -215,3 +215,7 @@ a {
 ._drawer .block .row .value {
     flex: none;
 }
+
+.tooltip {
+    max-width: 50%;
+}

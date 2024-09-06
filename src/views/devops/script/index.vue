@@ -9,7 +9,7 @@
       <el-button type="primary" icon="Plus" :disabled="!hasPermission('script:add')" @click="addDialog">新增</el-button>
     </div>
     <!--表格数据-->
-    <el-table class="table_content" :data="x.tableData" :stripe="true" empty-text="暂无数据">
+    <el-table class="table_content" :data="x.tableData" :stripe="true" :show-overflow-tooltip="true" :tooltip-options="{'popper-class': 'tooltip', 'enterable': false}" empty-text="暂无数据">
       <el-table-column type="expand" width="40px">
         <template #default="props">
           <div class="inner_content">
@@ -20,7 +20,7 @@
           </div>
         </template>
       </el-table-column>
-      <el-table-column label="名称" prop="name" header-align="center" align="center" width="200px"></el-table-column>
+      <el-table-column label="名称" prop="name" header-align="center" align="left"></el-table-column>
       <el-table-column label="版本" prop="version" header-align="center" align="center"></el-table-column>
       <el-table-column label="创建时间" prop="createTime" header-align="center" align="center" width="180px"></el-table-column>
       <el-table-column fixed="right" label="操作" header-align="center" align="center" width="160px">

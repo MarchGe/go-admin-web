@@ -8,7 +8,7 @@
       <el-button type="primary" icon="Search" @click="search">搜索</el-button>
     </div>
     <!--表格数据-->
-    <el-table :data="x.tableData" :stripe="true" empty-text="暂无数据">
+    <el-table :data="x.tableData" :stripe="true" :show-overflow-tooltip="true" :tooltip-options="{'popper-class': 'tooltip', 'enterable': false}" empty-text="暂无数据">
       <el-table-column label="IP地址" prop="ip" header-align="center" align="center" width="180px"></el-table-column>
       <el-table-column label="CPU使用率(%)" prop="cpu.usedPercent" header-align="center" align="center"></el-table-column>
       <el-table-column label="内存使用率(%)" prop="virtualMemory.usedPercent" header-align="center" align="center"></el-table-column>

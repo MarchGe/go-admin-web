@@ -9,8 +9,8 @@
       <el-button type="primary" icon="Plus" :disabled="!hasPermission('host:add')" @click="addDialog">新增</el-button>
     </div>
     <!--表格数据-->
-    <el-table :data="x.tableData" :stripe="true" empty-text="暂无数据">
-      <el-table-column label="名称" prop="name" header-align="center" align="center" width="200px"></el-table-column>
+    <el-table :data="x.tableData" :stripe="true" :show-overflow-tooltip="true" :tooltip-options="{'popper-class': 'tooltip', 'enterable': false}" empty-text="暂无数据">
+      <el-table-column label="名称" prop="name" header-align="center" align="center" min-width="200px"></el-table-column>
       <el-table-column label="IP" prop="ip" header-align="center" align="center" width="180px"></el-table-column>
       <el-table-column label="端口" prop="port" header-align="center" align="center"></el-table-column>
       <el-table-column label="账号" prop="user" header-align="center" align="center"></el-table-column>
