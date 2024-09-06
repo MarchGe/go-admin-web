@@ -15,11 +15,12 @@
       <el-table-column label="端口" prop="port" header-align="center" align="center"></el-table-column>
       <el-table-column label="账号" prop="user" header-align="center" align="center"></el-table-column>
       <el-table-column label="创建时间" prop="createTime" header-align="center" align="center" width="180px"></el-table-column>
-      <el-table-column fixed="right" label="操作" header-align="center" align="center" width="220px">
+      <el-table-column fixed="right" label="操作" header-align="center" align="center" width="280px">
         <template #default="scope">
           <el-button type="warning" size="small" :disabled="!hasPermission('host:update')" @click="updateDialog(scope.row)">编辑</el-button>
           <el-button type="danger" size="small" :disabled="!hasPermission('host:delete')" @click="deleteDialog(scope.row)">删除</el-button>
           <el-button type="success" size="small" :disabled="!hasPermission('host:connect')" @click="openShell(scope.row)">Shell</el-button>
+          <el-button size="small" style="color: #ffffff;" color="#D5B170" :disabled="!hasPermission('explorer_sftp:entries')" @click="openExplorer(scope.row)">SFTP</el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -254,7 +255,10 @@ function connectTest() {
 function openShell(host) {
   router.push("/devops/host/terminal?id=" + host.id)
 }
+
+function openExplorer(host) {
+  router.push("/devops/host/explorer?id=" + host.id + "&user=" + host.user + "&ip=" + host.ip)
+}
 </script>
 <style scoped src="../../../assets/css/devops/host.css">
-
 </style>

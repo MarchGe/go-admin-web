@@ -2,14 +2,14 @@
   <div id="container" class="container">
     <div class="head">
       <el-icon class="arrow-icon" size="24" @click="goBack" style="margin-left: 10px;"><i class="iconfont icon-arrow-left arrow" :class="x.pathStack.length === 0 ? 'disable': ''"></i></el-icon>
-      <span class="path">{{x.crumbs}}</span>
+      <span class="path"><el-tag type="info" effect="plain">{{x.hostStr}}</el-tag>{{x.crumbs}}</span>
       <span style="flex: auto;"></span>
       <div class="refresh" @click="refresh">
         <el-icon :class="x.isRefreshing ? 'is-loading' : ''" color="#8a8a8a" size="18">
           <Refresh/>
         </el-icon>
       </div>
-      <el-button class="upload_btn" type="primary" size="small" @click="uploadDialog" :disabled="!hasPermission('explorer:upload')">上传</el-button>
+      <el-button class="upload_btn" type="primary" size="small" @click="uploadDialog" :disabled="!hasPermission('explorer_sftp:upload')">上传</el-button>
     </div>
     <div class="list" v-if="x.entries.length > 0">
       <div class="item_v" v-for="item in x.entries" :key="item.name">
@@ -19,7 +19,7 @@
             <template #dropdown>
               <el-dropdown-menu>
                 <el-dropdown-item :command="'OPEN:'+item.name">打开</el-dropdown-item>
-                <el-dropdown-item :command="'DELETE:'+item.name" :disabled="!hasPermission('explorer:delete')">删除</el-dropdown-item>
+                <el-dropdown-item :command="'DELETE:'+item.name" :disabled="!hasPermission('explorer_sftp:delete')">删除</el-dropdown-item>
               </el-dropdown-menu>
             </template>
           </el-dropdown>
@@ -30,8 +30,8 @@
             <el-icon size="60"><i class="iconfont icon-ex-file file"></i></el-icon>
             <template #dropdown>
               <el-dropdown-menu>
-                <el-dropdown-item :command="'DELETE:'+item.name" :disabled="!hasPermission('explorer:delete')">删除</el-dropdown-item>
-                <el-dropdown-item :command="'DOWNLOAD:'+item.name" :disabled="!hasPermission('explorer:download')">下载</el-dropdown-item>
+                <el-dropdown-item :command="'DELETE:'+item.name" :disabled="!hasPermission('explorer_sftp:delete')">删除</el-dropdown-item>
+                <el-dropdown-item :command="'DOWNLOAD:'+item.name" :disabled="!hasPermission('explorer_sftp:download')">下载</el-dropdown-item>
               </el-dropdown-menu>
             </template>
           </el-dropdown>
@@ -67,16 +67,20 @@ import {serverPaths} from "@/settings"
 import uiUtils from "@/utils/ui-utils"
 import httpUtils from "@/utils/http-utils"
 import {ElLoading} from "element-plus"
+import {useRoute, useRouter} from "vue-router";
 
 const loadingConfig = {
   background: "rgba(255,255,255,0.3)",
   target: "#container"
 }
+const route = useRoute()
+const router = useRouter()
 const x = reactive({
   btnState: uiUtils.buttonState(),
   root: "/",
+  hostStr: "",
   crumbs: "",
-  uploadUrl: serverPaths.explorerUpload,
+  uploadUrl: serverPaths.hostExplorerUpload,
   formUploadData: {
     dir: ""
   },
@@ -95,7 +99,8 @@ const x = reactive({
 const upload = ref()
 
 onMounted(() => {
-  let parentDir = getParentDir();
+  x.hostStr = route.query.user + "@" + route.query.ip
+  let parentDir = getParentDir()
   search(parentDir, () => {
     showCrumbs()
   })
@@ -108,8 +113,9 @@ function showCrumbs() {
 function search(parentDir, successCallback) {
   x.searchItems.dir = parentDir
   let params = x.searchItems
+  params.hostId = route.query.id
   const loadingInstance = ElLoading.service(loadingConfig)
-  httpUtils.get(serverPaths.explorerEntries, params, function (resList) {
+  httpUtils.get(serverPaths.hostExplorerEntries, params, function (resList) {
     if (resList) {
       x.entries = resList
     } else {
@@ -184,7 +190,7 @@ function downloadFile(fileName) {
     filePath = parentDir + "/" + fileName
   }
   const link = document.createElement("a")
-  link.href = serverPaths.explorerDownload + "?path=" + filePath
+  link.href = serverPaths.hostExplorerDownload + "?path=" + filePath + "&hostId=" + route.query.id
   document.body.appendChild(link);
   link.click()
   document.body.removeChild(link);
@@ -210,9 +216,10 @@ function doDelete() {
     filePath = parentDir + "/" + x.opFileName
   }
   let params = {
-    path: filePath
+    path: filePath,
+    hostId: route.query.id
   }
-  httpUtils.delete(serverPaths.explorerDelete, params, function () {
+  httpUtils.delete(serverPaths.hostExplorerDelete, params, function () {
     x.showDeleteDialog = false
     uiUtils.showToast("success", "删除成功")
     search(parentDir)
@@ -242,6 +249,7 @@ function uploadDialog() {
 
 function beforeUpload () {
   x.formUploadData.dir = getParentDir()
+  x.formUploadData.hostId = route.query.id
   return true
 }
 
