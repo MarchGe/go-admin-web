@@ -20,6 +20,7 @@
             <template #dropdown>
               <el-dropdown-menu>
                 <el-dropdown-item :command="'OPEN:'+item.name">打开</el-dropdown-item>
+                <el-dropdown-item :command="'RENAME:'+item.name" :disabled="!hasPermission('explorer:rename')">重命名</el-dropdown-item>
                 <el-dropdown-item :command="'DELETE:'+item.name" :disabled="!hasPermission('explorer:delete')">删除</el-dropdown-item>
               </el-dropdown-menu>
             </template>
@@ -31,8 +32,9 @@
             <el-icon size="60"><i class="iconfont icon-ex-file file"></i></el-icon>
             <template #dropdown>
               <el-dropdown-menu>
-                <el-dropdown-item :command="'DELETE:'+item.name" :disabled="!hasPermission('explorer:delete')">删除</el-dropdown-item>
                 <el-dropdown-item :command="'DOWNLOAD:'+item.name" :disabled="!hasPermission('explorer:download')">下载</el-dropdown-item>
+                <el-dropdown-item :command="'RENAME:'+item.name" :disabled="!hasPermission('explorer:rename')">重命名</el-dropdown-item>
+                <el-dropdown-item :command="'DELETE:'+item.name" :disabled="!hasPermission('explorer:delete')">删除</el-dropdown-item>
               </el-dropdown-menu>
             </template>
           </el-dropdown>
@@ -70,6 +72,17 @@
         <el-button type="primary" :loading="x.btnState.isLoading" @click="doCreateDir">确定</el-button>
       </template>
     </el-dialog>
+    <!--重命名弹框-->
+    <el-dialog class="upsert" v-model="x.showRenameDialog" title="重命名" width="35%">
+      <div class="row">
+        <span class="label _required">新名称</span>
+        <el-input class="value" v-model="x.inputRenameName" placeholder="填写新名称" maxlength="30"></el-input>
+      </div>
+      <template #footer>
+        <el-button @click="x.showRenameDialog = false">取消</el-button>
+        <el-button type="primary" :loading="x.btnState.isLoading" @click="doRename">确定</el-button>
+      </template>
+    </el-dialog>
   </div>
 </template>
 <script setup>
@@ -101,10 +114,12 @@ const x = reactive({
   entries: [],
   showDeleteDialog: false,
   showUploadDialog: false,
+  showRenameDialog: false,
   opFileName: "",
   isRefreshing: false,
   showCreateDialog: false,
-  inputDirName: ""
+  inputDirName: "",
+  inputRenameName: ""
 })
 const upload = ref()
 
@@ -165,6 +180,10 @@ function handleCommand(command) {
   }
   if (op === "DOWNLOAD") {
     downloadFile(x.opFileName)
+    return
+  }
+  if (op === "RENAME") {
+    openRenameDialog()
   }
 }
 
@@ -202,6 +221,30 @@ function downloadFile(fileName) {
   document.body.appendChild(link);
   link.click()
   document.body.removeChild(link);
+}
+
+function openRenameDialog() {
+  x.showRenameDialog = true
+  x.inputRenameName = x.opFileName
+}
+
+function doRename() {
+  x.btnState.loading()
+  const parentDir = getParentDir()
+  let params = {
+    dir: parentDir,
+    oldName: x.opFileName,
+    newName: x.inputRenameName
+  }
+  httpUtils.post(serverPaths.explorerRename, params, function () {
+    x.btnState.unLoading()
+    x.showRenameDialog = false
+    x.inputRenameName = ""
+    uiUtils.showToast("success", "操作成功")
+    search(parentDir)
+  }, () => {
+    x.btnState.unLoading()
+  })
 }
 
 function getParentDir() {
