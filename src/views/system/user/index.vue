@@ -20,8 +20,8 @@
       <el-button type="primary" icon="Plus" :disabled="!hasPermission('user:add')" @click="addDialog">新增</el-button>
     </div>
     <!--表格数据-->
-    <el-table :data="x.tableData"  empty-text="暂无数据">
-      <el-table-column label="昵称" prop="nickname" header-align="center" align="center" width="120px"></el-table-column>
+    <el-table :data="x.tableData" :show-overflow-tooltip="true" :tooltip-options="{'popper-class': 'tooltip', 'enterable': false}" empty-text="暂无数据">
+      <el-table-column label="昵称" prop="nickname" header-align="center" align="center" min-width="120px"></el-table-column>
       <el-table-column label="邮箱" prop="email" header-align="center" align="center" min-width="180px"></el-table-column>
       <el-table-column label="手机号" prop="cellphone" header-align="center" align="center" min-width="120px"></el-table-column>
       <el-table-column label="性别" prop="sexLabel" header-align="center" align="center" width="60px"></el-table-column>
