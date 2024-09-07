@@ -18,6 +18,7 @@ import Performance from "./views/devops/monitor/performance/index.vue"
 import PerformanceDetail from "./views/devops/monitor/performance/detail.vue"
 import Host from "./views/devops/host/index.vue"
 import HostXterm from "./views/devops/host/xterm.vue"
+import HostExplorer from "./views/devops/host/explorer.vue"
 import Group from "./views/devops/group/index.vue"
 import App from "./views/devops/app/index.vue"
 import Script from "./views/devops/script/index.vue"
@@ -43,6 +44,7 @@ const router = [
             {path: "/devops/monitor/performance/detail", component: PerformanceDetail},
             {path: "/devops/host", component: Host},
             {path: "/devops/host/terminal", component: HostXterm},
+            {path: "/devops/host/explorer", component: HostExplorer},
             {path: "/devops/group", component: Group},
             {path: "/devops/app", component: App},
             {path: "/devops/script", component: Script},

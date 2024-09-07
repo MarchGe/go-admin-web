@@ -9,9 +9,9 @@
       <el-button type="primary" icon="Plus" :disabled="!hasPermission('task:add')" @click="addDialog">新增</el-button>
     </div>
     <!--表格数据-->
-    <el-table :data="x.tableData" :stripe="true" empty-text="暂无数据">
-      <el-table-column label="名称" prop="name" header-align="center" align="center" width="200px"></el-table-column>
-      <el-table-column label="任务类型" prop="typeText" header-align="center" align="center" width="180px"></el-table-column>
+    <el-table :data="x.tableData" :stripe="true" :show-overflow-tooltip="true" :tooltip-options="{'popper-class': 'tooltip', 'enterable': false}" empty-text="暂无数据">
+      <el-table-column label="名称" prop="name" header-align="center" align="center" min-width="200px"></el-table-column>
+      <el-table-column label="任务类型" prop="typeText" header-align="center" align="center"></el-table-column>
       <el-table-column label="状态" prop="statusText" header-align="center" align="center"></el-table-column>
       <el-table-column label="创建时间" prop="createTime" header-align="center" align="center" width="180px"></el-table-column>
       <el-table-column fixed="right" label="操作" header-align="center" align="center" width="280px">

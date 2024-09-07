@@ -133,7 +133,4 @@ function doClearLog() {
 }
 </script>
 <style>
-.tooltip {
-  max-width: 50%;
-}
 </style>

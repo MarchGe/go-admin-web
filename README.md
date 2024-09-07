@@ -83,6 +83,12 @@ server {
         proxy_pass http://go-admin-server;
         rewrite ^\/bg-(.*)$ /$1 break;
     }
+    location /bg-admin/devops/explorer/sftp/upload {
+        client_max_body_size 1g;
+        client_body_buffer_size 2m;
+        proxy_pass http://go-admin-server;
+        rewrite ^\/bg-(.*)$ /$1 break;
+    }
 }
 ```
 5. 启动nginx服务即可。

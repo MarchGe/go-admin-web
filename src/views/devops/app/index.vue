@@ -9,12 +9,12 @@
       <el-button type="primary" icon="Plus" :disabled="!hasPermission('app:add')" @click="addDialog">新增</el-button>
     </div>
     <!--表格数据-->
-    <el-table :data="x.tableData" :stripe="true" empty-text="暂无数据" :show-overflow-tooltip="true" :tooltip-options="{'popper-class': 'tooltip', 'enterable': false}">
-      <el-table-column label="名称" prop="name" header-align="center" align="center" width="180px"></el-table-column>
+    <el-table :data="x.tableData" :stripe="true" :show-overflow-tooltip="true" :tooltip-options="{'popper-class': 'tooltip', 'enterable': false}" empty-text="暂无数据">
+      <el-table-column label="名称" prop="name" header-align="center" align="center" min-width="200px"></el-table-column>
       <el-table-column label="版本" prop="version" header-align="center" align="center" width="140px"></el-table-column>
       <el-table-column label="端口" prop="port" header-align="center" align="center" width="80px"></el-table-column>
-      <el-table-column label="文件名" prop="fileName" header-align="center" align="center" width="160px"></el-table-column>
-      <el-table-column label="Key" prop="key" header-align="center" align="center"></el-table-column>
+      <el-table-column label="文件名" prop="fileName" header-align="center" align="center" min-width="200px"></el-table-column>
+      <el-table-column label="Key" prop="key" header-align="center" align="center" min-width="300px"></el-table-column>
       <el-table-column label="创建时间" prop="createTime" header-align="center" align="center" width="180px"></el-table-column>
       <el-table-column fixed="right" label="操作" header-align="center" align="center" width="160px">
         <template #default="scope">
@@ -310,7 +310,4 @@ function handleDownload() {
 }
 </script>
 <style scoped src="../../../assets/css/devops/app.css">
-.tooltip {
-  max-width: 50%;
-}
 </style>
