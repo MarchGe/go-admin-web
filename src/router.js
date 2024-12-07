@@ -23,6 +23,7 @@ import Group from "./views/devops/group/index.vue"
 import App from "./views/devops/app/index.vue"
 import Script from "./views/devops/script/index.vue"
 import Task from "./views/devops/task/index.vue"
+import ScriptTask from "./views/devops/task/script-task/index.vue"
 const router = [
     {path: "/login", component: Login},
     {
@@ -49,6 +50,7 @@ const router = [
             {path: "/devops/app", component: App},
             {path: "/devops/script", component: Script},
             {path: "/devops/task", component: Task},
+            {path: "/devops/task/script-task", component: ScriptTask},
             // 404
             {path: "/:pathMatch(.*)*", component: NotFound},
         ]

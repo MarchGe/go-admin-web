@@ -11,16 +11,17 @@
     <!--表格数据-->
     <el-table :data="x.tableData" :stripe="true" :show-overflow-tooltip="true" :tooltip-options="{'popper-class': 'tooltip', 'enterable': false}" empty-text="暂无数据">
       <el-table-column label="名称" prop="name" header-align="center" align="center" min-width="200px"></el-table-column>
-      <el-table-column label="任务类型" prop="typeText" header-align="center" align="center"></el-table-column>
-      <el-table-column label="状态" prop="statusText" header-align="center" align="center"></el-table-column>
+      <el-table-column label="任务状态" prop="statusText" header-align="center" align="center"></el-table-column>
+      <el-table-column label="任务类型" prop="kindText" header-align="center" align="center"></el-table-column>
+      <el-table-column label="执行方式" prop="executeTypeText" header-align="center" align="center"></el-table-column>
       <el-table-column label="创建时间" prop="createTime" header-align="center" align="center" width="180px"></el-table-column>
       <el-table-column fixed="right" label="操作" header-align="center" align="center" width="280px">
         <template #default="scope">
-          <el-button v-if="scope.row.status !== 1" type="primary" size="small" :disabled="!hasPermission('task:start')" @click="startTaskDialog(scope.row)">启动</el-button>
-          <el-button v-else type="danger" size="small" :disabled="!hasPermission('task:stop')" @click="stopTaskDialog(scope.row)">停止</el-button>
-          <el-button type="warning" size="small" :disabled="!hasPermission('task:update')" @click="updateDialog(scope.row)">编辑</el-button>
-          <el-button type="danger" size="small" :disabled="!hasPermission('task:delete')" @click="deleteDialog(scope.row)">删除</el-button>
-          <el-button type="info" size="small" :disabled="!hasPermission('task:log')" @click="manifestEntriesDialog(scope.row)">日志</el-button>
+          <el-button v-if="scope.row.status !== 1 && scope.row.status !== 4" type="primary" size="small" :disabled="!hasPermission('scriptTask:start')" @click="startTaskDialog(scope.row)">启动</el-button>
+          <el-button v-else type="danger" size="small" :disabled="!hasPermission('scriptTask:stop')" @click="stopTaskDialog(scope.row)">停止</el-button>
+          <el-button type="warning" size="small" :disabled="!hasPermission('scriptTask:update')" @click="updateDialog(scope.row)">编辑</el-button>
+          <el-button type="danger" size="small" :disabled="!hasPermission('scriptTask:delete')" @click="deleteDialog(scope.row)">删除</el-button>
+          <el-button type="info" size="small" :disabled="!hasPermission('scriptTask:log')" @click="manifestEntriesDialog(scope.row)">日志</el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -31,45 +32,41 @@
         <span class="label _required">名称</span>
         <el-input class="value" v-model="x.taskInfo.name" placeholder="填写名称" maxlength="50"></el-input>
       </div>
-      <div class="row">
-        <span class="label _required">任务类型</span>
+      <div class="row" v-if="x.taskInfo.scriptIds.length > 0" v-for="(item, index) in x.taskInfo.scriptIds" :key="index">
+        <span class="label" :class="index === 0 ? '_required' : ''">{{index === 0 ? '脚本' : ''}}</span>
         <div class="value">
-          <el-select v-model="x.taskInfo.type" placeholder="选择任务类型" @change="onTaskTypeChange">
-            <el-option v-for="item in x.taskTypeList" :key="item.value" :label="item.name" :value="item.value"></el-option>
-          </el-select>
-        </div>
-      </div>
-      <div class="row" v-if="x.selectedTaskType !== 1">
-        <span class="label">Cron</span>
-        <el-input class="value" v-model="x.taskInfo.cron" placeholder="填写Cron表达式" maxlength="50"></el-input>
-      </div>
-      <div class="row" v-if="x.selectedTaskType === 1">
-        <span class="label _required">上传路径</span>
-        <el-input class="value" v-model="x.taskInfo.concrete.uploadPath" placeholder="填写上传路径（部署包会上传到该目录）" maxlength="100"></el-input>
-      </div>
-      <div class="row" v-if="x.selectedTaskType === 1">
-        <span class="label _required">应用</span>
-        <div class="value">
-          <el-select v-model="x.taskInfo.concrete.appId" placeholder="选择应用" :filterable="true">
-            <el-option v-for="item in x.appList" :key="item.id" :label="item.name + '/' + item.version" :value="item.id"></el-option>
-          </el-select>
-        </div>
-      </div>
-      <div class="row" v-if="x.selectedTaskType === 1">
-        <span class="label _required">部署脚本</span>
-        <div class="value">
-          <el-select v-model="x.taskInfo.concrete.scriptId" placeholder="选择部署脚本" :filterable="true">
+          <el-select v-model="x.taskInfo.scriptIds[index]" placeholder="选择脚本" :filterable="true">
             <el-option v-for="item in x.scriptList" :key="item.id" :label="item.name + '/' + item.version" :value="item.id"></el-option>
           </el-select>
+          <i v-if="index !== 0" :class="'iconfont icon-shanchu'" @click="removeScriptItem(index)"></i>
         </div>
       </div>
-      <div class="row" v-if="x.selectedTaskType === 1">
+      <div class="row">
+        <span class="label"></span>
+        <div class="value">
+          <el-button type="primary" @click="addScript">+</el-button><span style="font-size: 12px;">（多个脚本依次执行）</span>
+        </div>
+      </div>
+      <div class="row">
+        <span class="label">任务类型</span>
+        <div class="value">
+          <el-radio-group v-model="x.taskInfo.kind">
+            <el-radio :value="0">本地任务</el-radio>
+            <el-radio :value="1">远程任务</el-radio>
+          </el-radio-group>
+        </div>
+      </div>
+      <div class="row" v-if="x.taskInfo.kind === 1">
         <span class="label _required">服务器组</span>
         <div class="value">
-          <el-select v-model="x.taskInfo.concrete.hostGroupId" placeholder="选择服务器组" :filterable="true">
+          <el-select v-model="x.taskInfo.hostGroupId" placeholder="选择服务器组" :filterable="true">
             <el-option v-for="item in x.hostGroupList" :key="item.id" :label="item.name" :value="item.id"></el-option>
           </el-select>
         </div>
+      </div>
+      <div class="row">
+        <span class="label">Cron</span>
+        <el-input class="value" v-model="x.taskInfo.cron" placeholder="填写Cron表达式（秒 分 时 日期 月份 星期）" title="秒 分 时 日期 月份 星期" maxlength="50"></el-input>
       </div>
       <template #footer>
         <el-button @click="x.showAddDialog = false">取消</el-button>
@@ -82,45 +79,41 @@
         <span class="label _required">名称</span>
         <el-input class="value" v-model="x.taskInfo.name" placeholder="填写名称" maxlength="50"></el-input>
       </div>
-      <div class="row">
-        <span class="label _required">任务类型</span>
+      <div class="row" v-if="x.taskInfo.scriptIds.length > 0" v-for="(item, index) in x.taskInfo.scriptIds" :key="index">
+        <span class="label" :class="index === 0 ? '_required' : ''">{{index === 0 ? '脚本' : ''}}</span>
         <div class="value">
-          <el-select v-model="x.taskInfo.type" placeholder="选择任务类型" @change="onTaskTypeChange">
-            <el-option v-for="item in x.taskTypeList" :key="item.value" :label="item.name" :value="item.value"></el-option>
-          </el-select>
-        </div>
-      </div>
-      <div class="row" v-if="x.selectedTaskType !== 1">
-        <span class="label">Cron</span>
-        <el-input class="value" v-model="x.taskInfo.cron" placeholder="填写Cron表达式" maxlength="50"></el-input>
-      </div>
-      <div class="row" v-if="x.selectedTaskType === 1">
-        <span class="label _required">上传路径</span>
-        <el-input class="value" v-model="x.taskInfo.concrete.uploadPath" placeholder="填写上传路径（部署包会上传到该目录）" maxlength="100"></el-input>
-      </div>
-      <div class="row" v-if="x.selectedTaskType === 1">
-        <span class="label _required">应用</span>
-        <div class="value">
-          <el-select v-model="x.taskInfo.concrete.appId" placeholder="选择应用" :filterable="true">
-            <el-option v-for="item in x.appList" :key="item.id" :label="item.name + '/' + item.version" :value="item.id"></el-option>
-          </el-select>
-        </div>
-      </div>
-      <div class="row" v-if="x.selectedTaskType === 1">
-        <span class="label _required">部署脚本</span>
-        <div class="value">
-          <el-select v-model="x.taskInfo.concrete.scriptId" placeholder="选择部署脚本" :filterable="true">
+          <el-select v-model="x.taskInfo.scriptIds[index]" placeholder="选择脚本" :filterable="true">
             <el-option v-for="item in x.scriptList" :key="item.id" :label="item.name + '/' + item.version" :value="item.id"></el-option>
           </el-select>
+          <i v-if="index !== 0" :class="'iconfont icon-shanchu'" @click="removeScriptItem(index)"></i>
         </div>
       </div>
-      <div class="row" v-if="x.selectedTaskType === 1">
+      <div class="row">
+        <span class="label"></span>
+        <div class="value">
+          <el-button type="primary" @click="addScript">+</el-button><span style="font-size: 12px;">（多个脚本依次执行）</span>
+        </div>
+      </div>
+      <div class="row">
+        <span class="label">任务类型</span>
+        <div class="value">
+          <el-radio-group v-model="x.taskInfo.kind">
+            <el-radio :value="0">本地任务</el-radio>
+            <el-radio :value="1">远程任务</el-radio>
+          </el-radio-group>
+        </div>
+      </div>
+      <div class="row" v-if="x.taskInfo.kind === 1">
         <span class="label _required">服务器组</span>
         <div class="value">
-          <el-select v-model="x.taskInfo.concrete.hostGroupId" placeholder="选择服务器组" :filterable="true">
+          <el-select v-model="x.taskInfo.hostGroupId" placeholder="选择服务器组" :filterable="true">
             <el-option v-for="item in x.hostGroupList" :key="item.id" :label="item.name" :value="item.id"></el-option>
           </el-select>
         </div>
+      </div>
+      <div class="row">
+        <span class="label">Cron</span>
+        <el-input class="value" v-model="x.taskInfo.cron" placeholder="填写Cron表达式（秒 分 时 日期 月份 星期）" title="秒 分 时 日期 月份 星期" maxlength="50"></el-input>
       </div>
       <template #footer>
         <el-button @click="x.showUpdateDialog = false">取消</el-button>
@@ -204,16 +197,9 @@ const x = reactive({
   showManifestEntriesDialog: false,
   showLogDialog: false,
   taskInfo: {
-    concrete: {}
+    kind: 0,
+    scriptIds: [] // 0（local） | 1（remote）
   },
-  taskTypeList: [
-    {
-      name: "部署任务",
-      value: 1
-    }
-  ],
-  selectedTaskType: 0,
-  appList: [],
   scriptList: [],
   hostGroupList: [],
   manifestEntries: [],
@@ -222,24 +208,10 @@ const x = reactive({
 
 onMounted(() => {
   search()
-  loadAppList()
   loadScriptList()
   loadHostGroupList()
   sseConnect()
 })
-
-function loadAppList() {
-  if (x.appList.length !== 0) {
-    return
-  }
-  let params = {
-    page: 1,
-    pageSize: configSettings.appListMaxPageSize
-  }
-  httpUtil.get(serverPaths.appList, params, function (data) {
-    x.appList = data.list
-  })
-}
 
 function loadScriptList() {
   if (x.scriptList.length !== 0) {
@@ -274,11 +246,11 @@ function sseConnect() {
     uiUtils.showToast("error", e.data)
     eventSource.close()
   })
-  eventSource.addEventListener("TASK_EXECUTE_END", function (e) {
+  eventSource.addEventListener("SCRIPT_TASK_EXECUTE_END", function (e) {
     uiUtils.showToast("success", e.data)
     search()
   })
-  eventSource.addEventListener("TASK_EXECUTE_FAIL", function (e) {
+  eventSource.addEventListener("SCRIPT_TASK_EXECUTE_FAIL", function (e) {
     uiUtils.showToast("error", e.data)
     search()
   })
@@ -305,7 +277,7 @@ function pageChanged(page) {
   let params = x.searchItems
   params.page = page
   params.pageSize = x.defaultPageSize
-  httpUtil.get(serverPaths.taskList, params, function (resData) {
+  httpUtil.get(serverPaths.scriptTaskList, params, function (resData) {
     x.currentPage = page
     x.total = resData.total
     if (resData && resData.list) {
@@ -314,16 +286,25 @@ function pageChanged(page) {
         let row = {}
         row.id = item.id
         row.name = item.name
-        row.type = item.type
-        row.cron = item.cron
-        row.concrete = {}
-        if (item.type === 1) {
-          row.typeText = "部署任务"
-          row.concrete.uploadPath = item.concrete.uploadPath
-          row.concrete.appId = item.concrete.appId
-          row.concrete.scriptId = item.concrete.scriptId
-          row.concrete.hostGroupId = item.concrete.hostGroupId
+        row.executeType = item.executeType
+        if (item.executeType === 1) {
+          row.executeTypeText = "自动"
+        } else {
+          row.executeTypeText = "手动"
         }
+        row.cron = item.cron
+        row.hostGroupId = item.hostGroupId
+        row.kind = item.kind
+        if (item.kind === 1) {
+          row.kindText = "远程"
+        } else {
+          row.kindText = "本地"
+        }
+        let scriptIds = []
+        for (let i = 0; i < item.scripts.length; i++) {
+          scriptIds.push(item.scripts[i].id)
+        }
+        row.scriptIds = scriptIds
         row.status = item.status
         if (item.status === 0) {
           row.statusText = "未运行"
@@ -333,6 +314,8 @@ function pageChanged(page) {
           row.statusText = "已完成"
         } else  if (item.status === 3) {
           row.statusText = "已停止"
+        } else if (item.status === 4) {
+          row.statusText = "已激活"
         }
         row.createTime = moment(item.createTime).format("YYYY-MM-DD HH:mm:ss")
         rows.push(row)
@@ -352,17 +335,21 @@ function search() {
   }
 }
 
+function addScript() {
+  x.taskInfo.scriptIds.push(null)
+}
+
 function addDialog() {
   x.taskInfo = {
-    concrete: {}
+    kind: 0,
+    scriptIds: [null]
   }
-  x.selectedTaskType = 0
   x.showAddDialog = true
 }
 
 function doAddTask() {
   x.btnState.loading()
-  httpUtil.post(serverPaths.taskAdd, x.taskInfo, function () {
+  httpUtil.post(serverPaths.scriptTaskAdd, x.taskInfo, function () {
     x.btnState.unLoading()
     x.showAddDialog = false
     uiUtils.showToast("success", "添加成功")
@@ -374,13 +361,12 @@ function doAddTask() {
 
 function updateDialog(task) {
   x.taskInfo = JSON.parse(JSON.stringify(task))
-  x.selectedTaskType = x.taskInfo.type
   x.showUpdateDialog = true
 }
 
 function doUpdateTask() {
   x.btnState.loading()
-  httpUtil.put(serverPaths.taskUpdate(x.taskInfo.id), x.taskInfo, function () {
+  httpUtil.put(serverPaths.scriptTaskUpdate(x.taskInfo.id), x.taskInfo, function () {
     x.btnState.unLoading()
     x.showUpdateDialog = false
     uiUtils.showToast("success", "修改成功")
@@ -397,7 +383,7 @@ function deleteDialog(task) {
 
 function doDeleteTask() {
   x.btnState.loading()
-  httpUtil.delete(serverPaths.taskDelete(x.taskInfo.id), null, function () {
+  httpUtil.delete(serverPaths.scriptTaskDelete(x.taskInfo.id), null, function () {
     x.btnState.unLoading()
     x.showDeleteDialog = false
     uiUtils.showToast("success", "删除成功")
@@ -407,20 +393,15 @@ function doDeleteTask() {
   })
 }
 
-function onTaskTypeChange(value) {
-  x.selectedTaskType = value
-}
-
 function startTaskDialog(task) {
   x.taskInfo = JSON.parse(JSON.stringify(task))
-  x.selectedTaskType = x.taskInfo.type
   x.showStartTaskDialog = true
 }
 
 function doStartTask() {
   x.btnState.loading()
   x.manifestEntries = []
-  httpUtil.post(serverPaths.taskStart(x.taskInfo.id), null, function () {
+  httpUtil.post(serverPaths.scriptTaskStart(x.taskInfo.id), null, function () {
     x.btnState.unLoading()
     x.showStartTaskDialog = false
     uiUtils.showToast("success", "启动成功")
@@ -432,13 +413,12 @@ function doStartTask() {
 
 function stopTaskDialog(task) {
   x.taskInfo = JSON.parse(JSON.stringify(task))
-  x.selectedTaskType = x.taskInfo.type
   x.showStopTaskDialog = true
 }
 
 function doStopTask() {
   x.btnState.loading()
-  httpUtil.post(serverPaths.taskStop(x.taskInfo.id), null, function () {
+  httpUtil.post(serverPaths.scriptTaskStop(x.taskInfo.id), null, function () {
     x.btnState.unLoading()
     x.showStopTaskDialog = false
     uiUtils.showToast("success", "停止成功")
@@ -448,14 +428,20 @@ function doStopTask() {
   })
 }
 
+function removeScriptItem(index) {
+  x.taskInfo.scriptIds.splice(index, 1)
+}
+
 let manifestEs
 function manifestEntriesDialog(task) {
   x.taskInfo = JSON.parse(JSON.stringify(task))
-  x.selectedTaskType = x.taskInfo.type
   x.showManifestEntriesDialog = true
   x.manifestEntries = []
-  manifestEs = new EventSource(serverPaths.taskManifestLog(x.taskInfo.id))
-  manifestEs.addEventListener("CLOSE", function () {
+  manifestEs = new EventSource(serverPaths.scriptTaskManifestLog(x.taskInfo.id))
+  manifestEs.addEventListener("CLOSE", function (e) {
+    if (e.data) {
+      uiUtils.showToast("error", e.data)
+    }
     manifestEs.close()
   })
   manifestEs.addEventListener("ERROR", function (e) {
@@ -491,7 +477,7 @@ let hostEs
 function logDialog(manifestEntry) {
   x.showLogDialog = true
   x.hostLog = []
-  hostEs = new EventSource(serverPaths.taskHostLog(x.taskInfo.id) + "?host=" + manifestEntry.host + "&hostLogName=" + manifestEntry.hostLogName)
+  hostEs = new EventSource(serverPaths.scriptTaskHostLog(x.taskInfo.id) + "?host=" + manifestEntry.host + "&hostLogName=" + manifestEntry.hostLogName)
   hostEs.addEventListener("CLOSE", function () {
     hostEs.close()
   })
@@ -515,5 +501,19 @@ function closeHostLogConn() {
 }
 
 </script>
-<style scoped src="../../../assets/css/devops/task.css">
+<style scoped src="@/assets/css/devops/task.css">
+</style>
+<style>
+.upsert .row .value:not(.sort) {
+  position: relative;
+}
+.upsert .row .icon-shanchu {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  margin-left: 5px;
+  cursor: pointer;
+  font-size: 14px;
+  color: #a8a8a8;
+}
 </style>

@@ -112,10 +112,19 @@ const serverPaths = {
     taskDelete: id => serverContextPath + "/devops/task/" + id,
     taskStart: id => serverContextPath + "/devops/task/start/" + id,
     taskStop: id => serverContextPath + "/devops/task/stop/" + id,
+    // script-task
+    scriptTaskList: serverContextPath + "/devops/script-task/list",
+    scriptTaskAdd: serverContextPath + "/devops/script-task",
+    scriptTaskUpdate: id => serverContextPath + "/devops/script-task/" + id,
+    scriptTaskDelete: id => serverContextPath + "/devops/script-task/" + id,
+    scriptTaskStart: id => serverContextPath + "/devops/script-task/start/" + id,
+    scriptTaskStop: id => serverContextPath + "/devops/script-task/stop/" + id,
     // sse
     ssePush: serverContextPath + "/sse/message-push",
     taskManifestLog: taskId => serverContextPath + "/sse/task/" + taskId + "/manifest-log",
     taskHostLog: taskId => serverContextPath + "/sse/task/" + taskId + "/host-log",
+    scriptTaskManifestLog: taskId => serverContextPath + "/sse/script-task/" + taskId + "/manifest-log",
+    scriptTaskHostLog: taskId => serverContextPath + "/sse/script-task/" + taskId + "/host-log",
     // explorer
     explorerEntries: serverContextPath + "/devops/explorer/entries",
     explorerDelete: serverContextPath + "/devops/explorer/entry",
