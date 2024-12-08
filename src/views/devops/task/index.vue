@@ -145,14 +145,14 @@
     </el-dialog>
     <!--停止任务弹框-->
     <el-dialog v-model="x.showStopTaskDialog" title="停止任务" width="30%">
-      <span>确定停止任务吗 ？</span>
+      <span>该操作不会中断当前正在执行的任务，确定要停止吗？</span>
       <template #footer>
         <el-button @click="x.showStopTaskDialog = false">取消</el-button>
         <el-button type="primary" :loading="x.btnState.isLoading" @click="doStopTask">确定</el-button>
       </template>
     </el-dialog>
     <!--任务日志清单条目弹框-->
-    <el-dialog v-model="x.showManifestEntriesDialog" title="任务日志" :close-on-click-modal="false" :close-on-press-escape="false" @close="closeManifestConn" width="60%">
+    <el-dialog v-model="x.showManifestEntriesDialog" title="任务日志" :close-on-click-modal="false" :close-on-press-escape="false" @close="closeManifestConn" :before-close="handleManifestLogClose" width="60%">
       <el-table :data="x.manifestEntries" :stripe="true" empty-text="正在处理，请稍等...">
         <el-table-column label="序号" prop="index" header-align="center" align="center" width="70px"></el-table-column>
         <el-table-column label="主机" prop="host" header-align="center" align="center" width="180px"></el-table-column>
@@ -168,7 +168,7 @@
       <template #footer></template>
     </el-dialog>
     <!--任务主机日志弹框-->
-    <el-dialog v-model="x.showLogDialog" title="日志记录" top="5vh" :close-on-click-modal="false" :close-on-press-escape="false" :fullscreen="true">
+    <el-dialog v-model="x.showLogDialog" title="日志记录" top="5vh" :close-on-click-modal="false" :close-on-press-escape="false" :before-close="handleHostLogClose" :fullscreen="true">
       <div>
         <pre style="white-space: pre-wrap;">{{x.hostLog.join("\r\n")}}</pre>
       </div>
@@ -480,6 +480,11 @@ function manifestEntriesDialog(task) {
   }
 }
 
+function handleManifestLogClose(done) {
+  closeManifestConn()
+  done()
+}
+
 function closeManifestConn() {
   if (manifestEs) {
     manifestEs.close()
@@ -500,11 +505,20 @@ function logDialog(manifestEntry) {
   })
   hostEs.addEventListener("HOST_LOG", function (e) {
     x.hostLog.push(e.data)
+    let diff = x.hostLog.length - 1000
+    if (diff > 0) {
+      x.hostLog.splice(0, diff)
+    }
   })
   manifestEs.onerror = function (e) {
     console.error(e, "SSE连接断开")
     hostEs.close()
   }
+}
+
+function handleHostLogClose(done) {
+  closeHostLogConn()
+  done()
 }
 
 function closeHostLogConn() {
