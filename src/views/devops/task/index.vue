@@ -423,7 +423,6 @@ function doStartTask() {
   httpUtil.post(serverPaths.taskStart(x.taskInfo.id), null, function () {
     x.btnState.unLoading()
     x.showStartTaskDialog = false
-    uiUtils.showToast("success", "启动成功")
     pageChanged(x.currentPage)
   }, () => {
     x.btnState.unLoading()
