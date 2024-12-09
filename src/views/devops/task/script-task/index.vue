@@ -11,9 +11,21 @@
     <!--表格数据-->
     <el-table :data="x.tableData" :stripe="true" :show-overflow-tooltip="true" :tooltip-options="{'popper-class': 'tooltip', 'enterable': false}" empty-text="暂无数据">
       <el-table-column label="名称" prop="name" header-align="center" align="center" min-width="200px"></el-table-column>
-      <el-table-column label="任务状态" prop="statusText" header-align="center" align="center"></el-table-column>
-      <el-table-column label="任务类型" prop="kindText" header-align="center" align="center"></el-table-column>
-      <el-table-column label="执行方式" prop="executeTypeText" header-align="center" align="center"></el-table-column>
+      <el-table-column label="任务状态" header-align="center" align="center">
+        <template #default="scope">
+          <el-tag :type="scope.row.statusTagType" disable-transitions>{{ scope.row.statusText }}</el-tag>
+        </template>
+      </el-table-column>
+      <el-table-column label="任务类型" header-align="center" align="center">
+        <template #default="scope">
+          <el-tag :type="scope.row.kindTagType" disable-transitions>{{ scope.row.kindText }}</el-tag>
+        </template>
+      </el-table-column>
+      <el-table-column label="执行方式" header-align="center" align="center">
+        <template #default="scope">
+          <el-tag :type="scope.row.executeTagType" disable-transitions>{{ scope.row.executeTypeText }}</el-tag>
+        </template>
+      </el-table-column>
       <el-table-column label="创建时间" prop="createTime" header-align="center" align="center" width="180px"></el-table-column>
       <el-table-column fixed="right" label="操作" header-align="center" align="center" width="280px">
         <template #default="scope">
@@ -289,16 +301,20 @@ function pageChanged(page) {
         row.executeType = item.executeType
         if (item.executeType === 1) {
           row.executeTypeText = "自动"
+          row.executeTagType = "success"
         } else {
           row.executeTypeText = "手动"
+          row.executeTagType = "info"
         }
         row.cron = item.cron
         row.hostGroupId = item.hostGroupId
         row.kind = item.kind
         if (item.kind === 1) {
           row.kindText = "远程"
+          row.kindTagType = "warning"
         } else {
           row.kindText = "本地"
+          row.kindTagType = "info"
         }
         let scriptIds = []
         for (let i = 0; i < item.scripts.length; i++) {
@@ -308,14 +324,19 @@ function pageChanged(page) {
         row.status = item.status
         if (item.status === 0) {
           row.statusText = "未运行"
+          row.statusTagType = "info"
         } else if (item.status === 1) {
           row.statusText = "运行中"
+          row.statusTagType = "success"
         } else  if (item.status === 2) {
           row.statusText = "已完成"
+          row.statusTagType = "warning"
         } else  if (item.status === 3) {
           row.statusText = "已停止"
+          row.statusTagType = "danger"
         } else if (item.status === 4) {
           row.statusText = "已激活"
+          row.statusTagType = "success"
         }
         row.createTime = moment(item.createTime).format("YYYY-MM-DD HH:mm:ss")
         rows.push(row)

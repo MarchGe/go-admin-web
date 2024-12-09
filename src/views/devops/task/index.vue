@@ -11,8 +11,11 @@
     <!--表格数据-->
     <el-table :data="x.tableData" :stripe="true" :show-overflow-tooltip="true" :tooltip-options="{'popper-class': 'tooltip', 'enterable': false}" empty-text="暂无数据">
       <el-table-column label="名称" prop="name" header-align="center" align="center" min-width="200px"></el-table-column>
-      <el-table-column label="任务类型" prop="typeText" header-align="center" align="center"></el-table-column>
-      <el-table-column label="状态" prop="statusText" header-align="center" align="center"></el-table-column>
+      <el-table-column label="状态" header-align="center" align="center">
+        <template #default="scope">
+          <el-tag :type="scope.row.statusTagType" disable-transitions>{{ scope.row.statusText }}</el-tag>
+        </template>
+      </el-table-column>
       <el-table-column label="创建时间" prop="createTime" header-align="center" align="center" width="180px"></el-table-column>
       <el-table-column fixed="right" label="操作" header-align="center" align="center" width="280px">
         <template #default="scope">
@@ -32,22 +35,10 @@
         <el-input class="value" v-model="x.taskInfo.name" placeholder="填写名称" maxlength="50"></el-input>
       </div>
       <div class="row">
-        <span class="label _required">任务类型</span>
-        <div class="value">
-          <el-select v-model="x.taskInfo.type" placeholder="选择任务类型" @change="onTaskTypeChange">
-            <el-option v-for="item in x.taskTypeList" :key="item.value" :label="item.name" :value="item.value"></el-option>
-          </el-select>
-        </div>
-      </div>
-      <div class="row" v-if="x.selectedTaskType !== 1">
-        <span class="label">Cron</span>
-        <el-input class="value" v-model="x.taskInfo.cron" placeholder="填写Cron表达式" maxlength="50"></el-input>
-      </div>
-      <div class="row" v-if="x.selectedTaskType === 1">
         <span class="label _required">上传路径</span>
         <el-input class="value" v-model="x.taskInfo.concrete.uploadPath" placeholder="填写上传路径（部署包会上传到该目录）" maxlength="100"></el-input>
       </div>
-      <div class="row" v-if="x.selectedTaskType === 1">
+      <div class="row">
         <span class="label _required">应用</span>
         <div class="value">
           <el-select v-model="x.taskInfo.concrete.appId" placeholder="选择应用" :filterable="true">
@@ -55,7 +46,7 @@
           </el-select>
         </div>
       </div>
-      <div class="row" v-if="x.selectedTaskType === 1">
+      <div class="row">
         <span class="label _required">部署脚本</span>
         <div class="value">
           <el-select v-model="x.taskInfo.concrete.scriptId" placeholder="选择部署脚本" :filterable="true">
@@ -63,7 +54,7 @@
           </el-select>
         </div>
       </div>
-      <div class="row" v-if="x.selectedTaskType === 1">
+      <div class="row">
         <span class="label _required">服务器组</span>
         <div class="value">
           <el-select v-model="x.taskInfo.concrete.hostGroupId" placeholder="选择服务器组" :filterable="true">
@@ -83,22 +74,10 @@
         <el-input class="value" v-model="x.taskInfo.name" placeholder="填写名称" maxlength="50"></el-input>
       </div>
       <div class="row">
-        <span class="label _required">任务类型</span>
-        <div class="value">
-          <el-select v-model="x.taskInfo.type" placeholder="选择任务类型" @change="onTaskTypeChange">
-            <el-option v-for="item in x.taskTypeList" :key="item.value" :label="item.name" :value="item.value"></el-option>
-          </el-select>
-        </div>
-      </div>
-      <div class="row" v-if="x.selectedTaskType !== 1">
-        <span class="label">Cron</span>
-        <el-input class="value" v-model="x.taskInfo.cron" placeholder="填写Cron表达式" maxlength="50"></el-input>
-      </div>
-      <div class="row" v-if="x.selectedTaskType === 1">
         <span class="label _required">上传路径</span>
         <el-input class="value" v-model="x.taskInfo.concrete.uploadPath" placeholder="填写上传路径（部署包会上传到该目录）" maxlength="100"></el-input>
       </div>
-      <div class="row" v-if="x.selectedTaskType === 1">
+      <div class="row">
         <span class="label _required">应用</span>
         <div class="value">
           <el-select v-model="x.taskInfo.concrete.appId" placeholder="选择应用" :filterable="true">
@@ -106,7 +85,7 @@
           </el-select>
         </div>
       </div>
-      <div class="row" v-if="x.selectedTaskType === 1">
+      <div class="row">
         <span class="label _required">部署脚本</span>
         <div class="value">
           <el-select v-model="x.taskInfo.concrete.scriptId" placeholder="选择部署脚本" :filterable="true">
@@ -114,7 +93,7 @@
           </el-select>
         </div>
       </div>
-      <div class="row" v-if="x.selectedTaskType === 1">
+      <div class="row">
         <span class="label _required">服务器组</span>
         <div class="value">
           <el-select v-model="x.taskInfo.concrete.hostGroupId" placeholder="选择服务器组" :filterable="true">
@@ -317,22 +296,23 @@ function pageChanged(page) {
         row.type = item.type
         row.cron = item.cron
         row.concrete = {}
-        if (item.type === 1) {
-          row.typeText = "部署任务"
-          row.concrete.uploadPath = item.concrete.uploadPath
-          row.concrete.appId = item.concrete.appId
-          row.concrete.scriptId = item.concrete.scriptId
-          row.concrete.hostGroupId = item.concrete.hostGroupId
-        }
+        row.concrete.uploadPath = item.concrete.uploadPath
+        row.concrete.appId = item.concrete.appId
+        row.concrete.scriptId = item.concrete.scriptId
+        row.concrete.hostGroupId = item.concrete.hostGroupId
         row.status = item.status
         if (item.status === 0) {
           row.statusText = "未运行"
+          row.statusTagType = "info"
         } else if (item.status === 1) {
           row.statusText = "运行中"
+          row.statusTagType = "success"
         } else  if (item.status === 2) {
           row.statusText = "已完成"
+          row.statusTagType = "warning"
         } else  if (item.status === 3) {
           row.statusText = "已停止"
+          row.statusTagType = "danger"
         }
         row.createTime = moment(item.createTime).format("YYYY-MM-DD HH:mm:ss")
         rows.push(row)
@@ -354,9 +334,9 @@ function search() {
 
 function addDialog() {
   x.taskInfo = {
-    concrete: {}
+    concrete: {},
+    type: 1
   }
-  x.selectedTaskType = 0
   x.showAddDialog = true
 }
 
@@ -374,7 +354,6 @@ function doAddTask() {
 
 function updateDialog(task) {
   x.taskInfo = JSON.parse(JSON.stringify(task))
-  x.selectedTaskType = x.taskInfo.type
   x.showUpdateDialog = true
 }
 
@@ -407,13 +386,8 @@ function doDeleteTask() {
   })
 }
 
-function onTaskTypeChange(value) {
-  x.selectedTaskType = value
-}
-
 function startTaskDialog(task) {
   x.taskInfo = JSON.parse(JSON.stringify(task))
-  x.selectedTaskType = x.taskInfo.type
   x.showStartTaskDialog = true
 }
 
@@ -431,7 +405,6 @@ function doStartTask() {
 
 function stopTaskDialog(task) {
   x.taskInfo = JSON.parse(JSON.stringify(task))
-  x.selectedTaskType = x.taskInfo.type
   x.showStopTaskDialog = true
 }
 
@@ -450,7 +423,6 @@ function doStopTask() {
 let manifestEs
 function manifestEntriesDialog(task) {
   x.taskInfo = JSON.parse(JSON.stringify(task))
-  x.selectedTaskType = x.taskInfo.type
   x.showManifestEntriesDialog = true
   x.manifestEntries = []
   manifestEs = new EventSource(serverPaths.taskManifestLog(x.taskInfo.id))

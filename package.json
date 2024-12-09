@@ -1,6 +1,6 @@
 {
   "name": "go-admin-web",
-  "version": "v0.0.1-preview",
+  "version": "v1.0.0",
   "private": true,
   "scripts": {
     "dev": "vite",
