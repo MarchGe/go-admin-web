@@ -1,6 +1,6 @@
 @font-face {
   font-family: "iconfont"; /* Project id 4456016 */
-  src: url('iconfont.woff2?t=1716392144388') format('woff2');
+  src: url('iconfont.woff2?t=1733306414039') format('woff2');
 }
 
 .iconfont {
@@ -9,6 +9,10 @@
   font-style: normal;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+.icon-yiwen:before {
+  content: "\e601";
 }
 
 .icon-arrow-right:before {

@@ -22,6 +22,18 @@
       </el-table-column>
       <el-table-column label="名称" prop="name" header-align="center" align="left"></el-table-column>
       <el-table-column label="版本" prop="version" header-align="center" align="center"></el-table-column>
+      <el-table-column label="引用" header-align="center" align="center">
+        <template #default="scope">
+          <el-tooltip effect="light" placement="right">
+            <template #content>
+              <span v-if="scope.row.deployTaskRefCount">部署任务：{{scope.row.deployTaskRefCount}}</span>
+              <br v-if="scope.row.deployTaskRefCount"/>
+              <span v-if="scope.row.scriptTaskRefCount">脚本任务：{{scope.row.scriptTaskRefCount}}</span>
+            </template>
+            <span style="cursor: default;">{{scope.row.refCount}}</span>
+          </el-tooltip>
+        </template>
+      </el-table-column>
       <el-table-column label="创建时间" prop="createTime" header-align="center" align="center" width="180px"></el-table-column>
       <el-table-column fixed="right" label="操作" header-align="center" align="center" width="160px">
         <template #default="scope">
@@ -133,6 +145,9 @@ function pageChanged(page) {
         row.version = item.version
         row.content = item.content
         row.description = item.description
+        row.refCount = item.scriptTaskRefCount + item.deployTaskRefCount
+        row.scriptTaskRefCount = item.scriptTaskRefCount
+        row.deployTaskRefCount = item.deployTaskRefCount
         row.createTime = moment(item.createTime).format("YYYY-MM-DD HH:mm:ss")
         rows.push(row)
       })
