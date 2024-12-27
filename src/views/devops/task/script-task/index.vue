@@ -6,7 +6,7 @@
         <template #prepend>关键字</template>
       </el-input>
       <el-button type="primary" icon="Search" @click="search">搜索</el-button>
-      <el-button type="primary" icon="Plus" :disabled="!hasPermission('task:add')" @click="addDialog">新增</el-button>
+      <el-button type="primary" icon="Plus" :disabled="!hasPermission('scriptTask:add')" @click="addDialog">新增</el-button>
     </div>
     <!--表格数据-->
     <el-table :data="x.tableData" :stripe="true" :show-overflow-tooltip="true" :tooltip-options="{'popper-class': 'tooltip', 'enterable': false}" empty-text="暂无数据">
