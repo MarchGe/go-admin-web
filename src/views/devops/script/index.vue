@@ -14,9 +14,9 @@
         <template #default="props">
           <div class="inner_content">
             <div class="label">脚本内容：</div>
-            <pre class="script-code"><code>{{props.row.content}}</code></pre>
-            <div class="label">使用说明：</div>
-            <pre class="script-code"><code>{{props.row.description ? props.row.description : "无"}}</code></pre>
+            <div class="script-editor" :ref="el => mountEditor(el, props.row.id, props.row.content)"></div>
+            <div class="label" style="margin-top: 12px;">使用说明：</div>
+            <pre class="desc-code">{{props.row.description ? props.row.description : "无"}}</pre>
           </div>
         </template>
       </el-table-column>
@@ -56,13 +56,67 @@
   </div>
 </template>
 <script setup>
-import {onMounted, reactive} from "vue"
+import {onMounted, onBeforeUnmount, reactive} from "vue"
 import {hasPermission} from "@/utils/permissions"
 import httpUtil from "@/utils/http-utils"
 import uiUtils from "@/utils/ui-utils"
 import moment from "moment"
 import {serverPaths} from "@/settings"
 import UpsertDialog from "@/views/devops/script/component/upsert-dialog.vue"
+import {basicSetup} from "codemirror"
+import {EditorView} from "@codemirror/view"
+import {EditorState} from "@codemirror/state"
+import {StreamLanguage} from "@codemirror/language"
+import {shell} from "@codemirror/legacy-modes/mode/shell"
+
+// 管理展开行的编辑器实例：key 为 rowId
+const editorMap = new Map()
+
+const readonlyTheme = EditorView.theme({
+  "&": {
+    fontSize: "13px",
+    fontFamily: "'Courier New', Courier, monospace",
+    border: "1px solid #dcdfe6",
+    borderRadius: "4px",
+    backgroundColor: "#fafafa"
+  },
+  ".cm-scroller": {overflow: "auto", maxHeight: "300px"},
+  ".cm-content": {caretColor: "transparent"},
+  ".cm-gutters": {
+    backgroundColor: "#f5f5f5",
+    color: "#aaa",
+    border: "none",
+    borderRight: "1px solid #e4e7ed"
+  },
+  ".cm-cursor": {display: "none"}
+}, {dark: false})
+
+function mountEditor(el, rowId, content) {
+  if (!el) {
+    // el 为 null 说明该行已收起，销毁对应实例
+    if (editorMap.has(rowId)) {
+      editorMap.get(rowId).destroy()
+      editorMap.delete(rowId)
+    }
+    return
+  }
+  // 已挂载过则跳过
+  if (editorMap.has(rowId)) return
+  const view = new EditorView({
+    state: EditorState.create({
+      doc: content || "",
+      extensions: [
+        basicSetup,
+        StreamLanguage.define(shell),
+        readonlyTheme,
+        EditorState.readOnly.of(true),
+        EditorView.editable.of(false)
+      ]
+    }),
+    parent: el
+  })
+  editorMap.set(rowId, view)
+}
 const x = reactive({
   btnState: uiUtils.buttonState(),
   connectBtnState: uiUtils.buttonState(),
@@ -128,6 +182,11 @@ function deleteDialog(script) {
   x.scriptInfo = JSON.parse(JSON.stringify(script))
   x.showDeleteDialog = true
 }
+
+onBeforeUnmount(() => {
+  editorMap.forEach(view => view.destroy())
+  editorMap.clear()
+})
 
 function doDeleteScript() {
   x.btnState.loading()

@@ -8,9 +8,9 @@
       <span class="label _required">版本</span>
       <el-input class="value" v-model="scriptInfo.version" placeholder="填写版本" maxlength="50"></el-input>
     </div>
-    <div class="row">
+    <div class="row code-row">
       <span class="label _required">脚本内容</span>
-      <el-input class="value" type="textarea" v-model="scriptInfo.content" :rows="8" placeholder="填写脚本" maxlength="10000"></el-input>
+      <div class="value code-editor" ref="editorRef"></div>
     </div>
     <div class="row">
       <span class="label">使用说明</span>
@@ -23,10 +23,15 @@
   </el-dialog>
 </template>
 <script setup>
-import {computed, reactive, ref, watch} from "vue"
+import {computed, nextTick, onBeforeUnmount, reactive, ref, watch} from "vue"
 import httpUtil from "@/utils/http-utils"
 import uiUtils from "@/utils/ui-utils"
 import {serverPaths} from "@/settings"
+import {basicSetup} from "codemirror"
+import {EditorView, placeholder as cmPlaceholder} from "@codemirror/view"
+import {EditorState} from "@codemirror/state"
+import {StreamLanguage} from "@codemirror/language"
+import {shell} from "@codemirror/legacy-modes/mode/shell"
 
 const props = defineProps({
   modelValue: {
@@ -52,6 +57,57 @@ const visible = computed({
 })
 
 const isLoading = ref(false)
+const editorRef = ref(null)
+let editorView = null
+
+const lightTheme = EditorView.theme({
+  "&": {
+    height: "280px",
+    fontSize: "13px",
+    fontFamily: "'Courier New', Courier, monospace",
+    border: "1px solid #dcdfe6",
+    borderRadius: "4px",
+    backgroundColor: "#ffffff"
+  },
+  ".cm-scroller": {overflow: "auto"},
+  ".cm-content": {caretColor: "#333"},
+  "&.cm-focused": {outline: "none", borderColor: "#409eff"},
+  "&.cm-focused .cm-cursor": {borderLeftColor: "#333"},
+  ".cm-activeLine": {backgroundColor: "#f0f4ff"},
+  ".cm-gutters": {
+    backgroundColor: "#f8f8f8",
+    color: "#999",
+    border: "none",
+    borderRight: "1px solid #e4e7ed"
+  },
+  ".cm-activeLineGutter": {backgroundColor: "#e8eef8"}
+}, {dark: false})
+
+function createEditor(content) {
+  if (editorView) {
+    editorView.destroy()
+    editorView = null
+  }
+  if (!editorRef.value) return
+  editorView = new EditorView({
+    state: EditorState.create({
+      doc: content || "",
+      extensions: [
+        basicSetup,
+        StreamLanguage.define(shell),
+        lightTheme,
+        cmPlaceholder("填写脚本"),
+        EditorView.updateListener.of((update) => {
+          if (update.docChanged) {
+            scriptInfo.content = update.state.doc.toString()
+          }
+        })
+      ]
+    }),
+    parent: editorRef.value
+  })
+}
+
 const scriptInfo = reactive({
   id: null,
   name: "",
@@ -67,6 +123,16 @@ watch(() => props.modelValue, (val) => {
     } else {
       Object.assign(scriptInfo, {id: null, name: "", version: "", content: "", description: ""})
     }
+    nextTick(() => {
+      createEditor(scriptInfo.content)
+    })
+  }
+})
+
+onBeforeUnmount(() => {
+  if (editorView) {
+    editorView.destroy()
+    editorView = null
   }
 })
 
@@ -89,4 +155,28 @@ function doSubmit() {
 }
 </script>
 <style scoped src="../../../../assets/css/dialog_common.css">
+</style>
+<style scoped>
+.upsert .row.code-row {
+  align-items: flex-start;
+}
+
+.upsert .code-editor {
+  flex: 1;
+  margin-right: 20px;
+}
+
+.upsert .code-editor :deep(.cm-editor) {
+  font-size: 13px;
+  font-family: 'Courier New', Courier, monospace;
+  border: 1px solid #dcdfe6;
+  border-radius: 4px;
+  overflow: hidden;
+  height: 280px;
+}
+
+.upsert .code-editor :deep(.cm-editor.cm-focused) {
+  outline: none;
+  border-color: #409eff;
+}
 </style>
