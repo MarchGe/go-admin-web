@@ -5,7 +5,7 @@
       <el-input class="item" type="text" v-model="x.searchItems.keyword" maxlength="20" clearable style="width: 260px; margin-right: 15px;">
         <template #prepend>关键字</template>
       </el-input>
-      <el-button type="primary" icon="Search" @click="search">搜索</el-button>
+      <el-button type="primary" icon="Search" @click="search(1)">搜索</el-button>
       <el-button type="primary" icon="Plus" :disabled="!hasPermission('script:add')" @click="addDialog">新增</el-button>
     </div>
     <!--表格数据-->
@@ -42,53 +42,9 @@
         </template>
       </el-table-column>
     </el-table>
-    <el-pagination class="pagination" :default-page-size="x.defaultPageSize" v-model:current-page="x.currentPage" background :total="x.total" layout="prev, pager, next" @update:current-page="pageChanged"></el-pagination>
-    <!--新增弹框-->
-    <el-dialog class="upsert" v-model="x.showAddDialog" title="添加脚本" width="50%">
-      <div class="row">
-        <span class="label _required">名称</span>
-        <el-input class="value" v-model="x.scriptInfo.name" placeholder="填写名称" maxlength="50"></el-input>
-      </div>
-      <div class="row">
-        <span class="label _required">版本</span>
-        <el-input class="value" v-model="x.scriptInfo.version" placeholder="填写版本" maxlength="50"></el-input>
-      </div>
-      <div class="row">
-        <span class="label _required">脚本内容</span>
-        <el-input class="value" type="textarea" v-model="x.scriptInfo.content" :rows="8" placeholder="填写脚本" maxlength="10000"></el-input>
-      </div>
-      <div class="row">
-        <span class="label">使用说明</span>
-        <el-input class="value" type="textarea" v-model="x.scriptInfo.description" :rows="3" placeholder="填写使用说明" maxlength="2000"></el-input>
-      </div>
-      <template #footer>
-        <el-button @click="x.showAddDialog = false">取消</el-button>
-        <el-button type="primary" :loading="x.btnState.isLoading" @click="doAddScript">确定</el-button>
-      </template>
-    </el-dialog>
-    <!--编辑弹框-->
-    <el-dialog class="upsert" v-model="x.showUpdateDialog" title="修改脚本" width="50%">
-      <div class="row">
-        <span class="label _required">名称</span>
-        <el-input class="value" v-model="x.scriptInfo.name" placeholder="填写名称" maxlength="50"></el-input>
-      </div>
-      <div class="row">
-        <span class="label _required">版本</span>
-        <el-input class="value" v-model="x.scriptInfo.version" placeholder="填写版本" maxlength="50"></el-input>
-      </div>
-      <div class="row">
-        <span class="label _required">脚本内容</span>
-        <el-input class="value" type="textarea" v-model="x.scriptInfo.content" :rows="8" placeholder="填写脚本" maxlength="10000"></el-input>
-      </div>
-      <div class="row">
-        <span class="label">使用说明</span>
-        <el-input class="value" type="textarea" v-model="x.scriptInfo.description" :rows="3" placeholder="填写使用说明" maxlength="2000"></el-input>
-      </div>
-      <template #footer>
-        <el-button @click="x.showUpdateDialog = false">取消</el-button>
-        <el-button type="primary" :loading="x.btnState.isLoading" @click="doUpdateScript">确定</el-button>
-      </template>
-    </el-dialog>
+    <el-pagination class="pagination" :default-page-size="x.defaultPageSize" v-model:current-page="x.currentPage" background :total="x.total" layout="prev, pager, next" @update:current-page="search"></el-pagination>
+    <!--新增/编辑弹框-->
+    <upsert-dialog v-model="x.showUpsertDialog" :mode="x.upsertMode" :data="x.scriptInfo" @success="search(x.currentPage)"></upsert-dialog>
     <!--删除弹框-->
     <el-dialog v-model="x.showDeleteDialog" title="操作提示" width="30%">
       <span>删除后不可恢复，是否确定删除 ？</span>
@@ -106,9 +62,7 @@ import httpUtil from "@/utils/http-utils"
 import uiUtils from "@/utils/ui-utils"
 import moment from "moment"
 import {serverPaths} from "@/settings"
-import {useRouter} from "vue-router";
-
-const router = useRouter()
+import UpsertDialog from "@/views/devops/script/component/upsert-dialog.vue"
 const x = reactive({
   btnState: uiUtils.buttonState(),
   connectBtnState: uiUtils.buttonState(),
@@ -119,17 +73,17 @@ const x = reactive({
   defaultPageSize: 10,
   total: 0,
   tableData: [],
-  showAddDialog: false,
+  showUpsertDialog: false,
+  upsertMode: "add",
   showDeleteDialog: false,
-  showUpdateDialog: false,
   scriptInfo: {},
 })
 
 onMounted(() => {
-  search()
+  search(1)
 })
 
-function pageChanged(page) {
+function search(page) {
   let params = x.searchItems
   params.page = page
   params.pageSize = x.defaultPageSize
@@ -158,46 +112,16 @@ function pageChanged(page) {
   })
 }
 
-function search() {
-  if (x.currentPage === 1) {
-    pageChanged(1)
-  } else {
-    x.currentPage = 1
-  }
-}
-
 function addDialog() {
   x.scriptInfo = {}
-  x.showAddDialog = true
-}
-
-function doAddScript() {
-  x.btnState.loading()
-  httpUtil.post(serverPaths.scriptAdd, x.scriptInfo, function () {
-    x.btnState.unLoading()
-    x.showAddDialog = false
-    uiUtils.showToast("success", "添加成功")
-    pageChanged(x.currentPage)
-  }, () => {
-    x.btnState.unLoading()
-  })
+  x.upsertMode = "add"
+  x.showUpsertDialog = true
 }
 
 function updateDialog(script) {
   x.scriptInfo = JSON.parse(JSON.stringify(script))
-  x.showUpdateDialog = true
-}
-
-function doUpdateScript() {
-  x.btnState.loading()
-  httpUtil.put(serverPaths.scriptUpdate(x.scriptInfo.id), x.scriptInfo, function () {
-    x.btnState.unLoading()
-    x.showUpdateDialog = false
-    uiUtils.showToast("success", "修改成功")
-    pageChanged(x.currentPage)
-  }, () => {
-    x.btnState.unLoading()
-  })
+  x.upsertMode = "update"
+  x.showUpsertDialog = true
 }
 
 function deleteDialog(script) {
@@ -211,7 +135,7 @@ function doDeleteScript() {
     x.btnState.unLoading()
     x.showDeleteDialog = false
     uiUtils.showToast("success", "删除成功")
-    pageChanged(x.currentPage)
+    search(x.currentPage)
   }, () => {
     x.btnState.unLoading()
   })
