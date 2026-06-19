@@ -65,6 +65,7 @@ export default {
           self.failHint = res.data.message
         }
       }).catch(function (err) {
+        self.btnState.unLoading()
         console.error(err)
       })
     },

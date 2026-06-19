@@ -16,7 +16,7 @@
         <el-option :value="1" label="禁用"></el-option>
       </el-select>
       <el-date-picker class="item" v-model="x.searchItems.dates" type="daterange" :editable="false" :unlink-panels="true" clearable start-placeholder="开始日期" end-placeholder="结束日期" style="width: 260px; margin-right: 15px;"></el-date-picker>
-      <el-button type="primary" icon="Search" @click="search">搜索</el-button>
+      <el-button type="primary" icon="Search" @click="search(1)">搜索</el-button>
       <el-button type="primary" icon="Plus" :disabled="!hasPermission('user:add')" @click="addDialog">新增</el-button>
     </div>
     <!--表格数据-->
@@ -46,11 +46,11 @@
         </template>
       </el-table-column>
     </el-table>
-    <el-pagination class="pagination" :default-page-size="x.defaultPageSize" v-model:current-page="x.currentPage" background :total="x.total" layout="prev, pager, next" @update:current-page="pageChanged"></el-pagination>
+    <el-pagination class="pagination" :default-page-size="x.defaultPageSize" v-model:current-page="x.currentPage" background :total="x.total" layout="prev, pager, next" @update:current-page="search"></el-pagination>
     <!--用户详情弹框-->
     <UserDetail v-model="x.showUserDialog" :data="x.userInfo" @update-password="updatePasswordDialog" @reset-password="resetPasswordDialog" @delete="deleteDialog" @assign-permission="assignPermissionDialog"/>
     <!--新增/编辑弹框-->
-    <UpsertDialog v-model="x.showUpsertDialog" :mode="x.upsertMode" :data="x.upsertData" :role-list="x.roleList" :dept-tree="x.deptTree" :job-list="x.jobList" @success="pageChanged(x.currentPage)"/>
+    <UpsertDialog v-model="x.showUpsertDialog" :mode="x.upsertMode" :data="x.upsertData" :role-list="x.roleList" :dept-tree="x.deptTree" :job-list="x.jobList" @success="search(x.currentPage)"/>
     <!--禁用弹框-->
     <el-dialog v-model="x.showDisableDialog" title="操作提示" width="30%">
       <span>确定<span style="color: #FF0000;">【禁用】</span>用户：{{ x.userInfo.nickname }} ？</span>
@@ -165,7 +165,7 @@ const x = reactive({
 const permissionTree = ref()
 
 onMounted(() => {
-  search()
+  search(1)
   loadRoleList()
   loadDeptTree()
   loadJobList()
@@ -216,7 +216,7 @@ function loadJobList() {
   })
 }
 
-function pageChanged(page) {
+function search(page) {
   let params = x.searchItems
   params.page = page
   params.pageSize = x.defaultPageSize
@@ -279,14 +279,6 @@ function pageChanged(page) {
   })
 }
 
-function search() {
-  if (x.currentPage === 1) {
-    pageChanged(1)
-  } else {
-    x.currentPage = 1
-  }
-}
-
 function disableDialog(user) {
   x.userInfo = JSON.parse(JSON.stringify(user))
   x.showDisableDialog = true
@@ -303,7 +295,7 @@ function changeUserStatusDisable() {
     x.btnState.unLoading()
     x.showDisableDialog = false
     uiUtils.showToast("success", "禁用成功")
-    pageChanged(x.currentPage)
+    search(x.currentPage)
   }, () => {
     x.btnState.unLoading()
   })
@@ -315,7 +307,7 @@ function changeUserStatusEnable() {
     x.btnState.unLoading()
     x.showEnableDialog = false
     uiUtils.showToast("success", "启用成功")
-    pageChanged(x.currentPage)
+    search(x.currentPage)
   }, () => {
     x.btnState.unLoading()
   })
@@ -350,7 +342,7 @@ function doDeleteUser() {
     x.showDeleteDialog = false
     uiUtils.showToast("success", "删除成功")
     x.showUserDialog = false
-    pageChanged(x.currentPage)
+    search(x.currentPage)
   }, () => {
     x.btnState.unLoading()
   })
@@ -407,7 +399,7 @@ function doAssignPermission() {
     x.btnState.unLoading()
     x.showAssignPermissionDialog = false
     uiUtils.showToast("success", "权限分配成功")
-    pageChanged(x.currentPage)
+    search(x.currentPage)
   }, () => {
     x.btnState.unLoading()
   })
