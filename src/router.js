@@ -22,7 +22,7 @@ import HostExplorer from "./views/devops/host/explorer.vue"
 import Group from "./views/devops/group/index.vue"
 import App from "./views/devops/app/index.vue"
 import Script from "./views/devops/script/index.vue"
-import Task from "./views/devops/task/index.vue"
+import Task from "./views/devops/task/deploy-task/index.vue"
 import ScriptTask from "./views/devops/task/script-task/index.vue"
 const router = [
     {path: "/login", component: Login},

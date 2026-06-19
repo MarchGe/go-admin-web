@@ -5,7 +5,7 @@
       <el-input class="item" type="text" v-model="x.searchItems.keyword" maxlength="20" clearable style="width: 260px; margin-right: 15px;">
         <template #prepend>IP地址</template>
       </el-input>
-      <el-button type="primary" icon="Search" @click="search">搜索</el-button>
+      <el-button type="primary" icon="Search" @click="search(1)">搜索</el-button>
     </div>
     <!--表格数据-->
     <el-table :data="x.tableData" :stripe="true" :show-overflow-tooltip="true" :tooltip-options="{'popper-class': 'tooltip', 'enterable': false}" empty-text="暂无数据">
@@ -22,7 +22,7 @@
         </template>
       </el-table-column>
     </el-table>
-    <el-pagination class="pagination" :default-page-size="x.defaultPageSize" v-model:current-page="x.currentPage" background :total="x.total" layout="prev, pager, next" @update:current-page="pageChanged"></el-pagination>
+    <el-pagination class="pagination" :default-page-size="x.defaultPageSize" v-model:current-page="x.currentPage" background :total="x.total" layout="prev, pager, next" @update:current-page="search"></el-pagination>
     <!--删除弹框-->
     <el-dialog v-model="x.showDeleteDialog" title="操作提示" width="30%">
       <span>运行中的主机，删除后会被再次上报到列表中，要想彻底删除，请停止所在主机上的【admin-agent】程序</span>
@@ -68,10 +68,10 @@ const x = reactive({
 })
 
 onMounted(() => {
-  search()
+  search(1)
 })
 
-function pageChanged(page) {
+function search(page) {
   let params = x.searchItems
   params.page = page
   params.pageSize = x.defaultPageSize
@@ -97,14 +97,6 @@ function pageChanged(page) {
   })
 }
 
-function search() {
-  if (x.currentPage === 1) {
-    pageChanged(1)
-  } else {
-    x.currentPage = 1
-  }
-}
-
 function gotoDetail(row) {
   router.push("/devops/monitor/performance/detail?ip=" + row.ip)
 }
@@ -123,7 +115,7 @@ function doDeleteHost() {
     x.btnState.unLoading()
     x.showDeleteDialog = false
     uiUtils.showToast("success", "删除成功")
-    pageChanged(x.currentPage)
+    search(x.currentPage)
   }, () => {
     x.btnState.unLoading()
   })
