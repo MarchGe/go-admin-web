@@ -132,5 +132,6 @@ function doSubmit() {
 .upsert .code-editor {
   flex: 1;
   margin-right: 20px;
+  overflow: auto;
 }
 </style>
