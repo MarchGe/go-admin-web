@@ -27,11 +27,9 @@ import {computed, nextTick, onBeforeUnmount, reactive, ref, watch} from "vue"
 import httpUtil from "@/utils/http-utils"
 import uiUtils from "@/utils/ui-utils"
 import {serverPaths} from "@/settings"
-import {basicSetup} from "codemirror"
 import {EditorView, placeholder as cmPlaceholder} from "@codemirror/view"
 import {EditorState} from "@codemirror/state"
-import {StreamLanguage} from "@codemirror/language"
-import {shell} from "@codemirror/legacy-modes/mode/shell"
+import {buildEditExtensions} from "@/utils/codemirror-utils"
 
 const props = defineProps({
   modelValue: {
@@ -60,29 +58,6 @@ const isLoading = ref(false)
 const editorRef = ref(null)
 let editorView = null
 
-const lightTheme = EditorView.theme({
-  "&": {
-    height: "280px",
-    fontSize: "13px",
-    fontFamily: "'Courier New', Courier, monospace",
-    border: "1px solid #dcdfe6",
-    borderRadius: "4px",
-    backgroundColor: "#ffffff"
-  },
-  ".cm-scroller": {overflow: "auto"},
-  ".cm-content": {caretColor: "#333"},
-  "&.cm-focused": {outline: "none", borderColor: "#409eff"},
-  "&.cm-focused .cm-cursor": {borderLeftColor: "#333"},
-  ".cm-activeLine": {backgroundColor: "#f0f4ff"},
-  ".cm-gutters": {
-    backgroundColor: "#f8f8f8",
-    color: "#999",
-    border: "none",
-    borderRight: "1px solid #e4e7ed"
-  },
-  ".cm-activeLineGutter": {backgroundColor: "#e8eef8"}
-}, {dark: false})
-
 function createEditor(content) {
   if (editorView) {
     editorView.destroy()
@@ -92,17 +67,10 @@ function createEditor(content) {
   editorView = new EditorView({
     state: EditorState.create({
       doc: content || "",
-      extensions: [
-        basicSetup,
-        StreamLanguage.define(shell),
-        lightTheme,
-        cmPlaceholder("填写脚本"),
-        EditorView.updateListener.of((update) => {
-          if (update.docChanged) {
-            scriptInfo.content = update.state.doc.toString()
-          }
-        })
-      ]
+      extensions: buildEditExtensions(
+        (val) => { scriptInfo.content = val },
+        cmPlaceholder("填写脚本")
+      )
     }),
     parent: editorRef.value
   })
@@ -164,19 +132,5 @@ function doSubmit() {
 .upsert .code-editor {
   flex: 1;
   margin-right: 20px;
-}
-
-.upsert .code-editor :deep(.cm-editor) {
-  font-size: 13px;
-  font-family: 'Courier New', Courier, monospace;
-  border: 1px solid #dcdfe6;
-  border-radius: 4px;
-  overflow: hidden;
-  height: 280px;
-}
-
-.upsert .code-editor :deep(.cm-editor.cm-focused) {
-  outline: none;
-  border-color: #409eff;
 }
 </style>

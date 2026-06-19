@@ -13,15 +13,6 @@
     margin: 6px 0 4px 0;
 }
 
-.table_content .inner_content .script-editor .cm-editor {
-    font-size: 13px;
-    font-family: 'Courier New', Courier, monospace;
-    border: 1px solid #dcdfe6;
-    border-radius: 4px;
-    max-height: 300px;
-    overflow: hidden;
-}
-
 .table_content .inner_content .desc-code {
     line-height: 1.5;
     font-family: 'Courier New', Courier, monospace;

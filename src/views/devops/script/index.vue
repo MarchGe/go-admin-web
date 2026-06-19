@@ -63,33 +63,12 @@ import uiUtils from "@/utils/ui-utils"
 import moment from "moment"
 import {serverPaths} from "@/settings"
 import UpsertDialog from "@/views/devops/script/component/upsert-dialog.vue"
-import {basicSetup} from "codemirror"
 import {EditorView} from "@codemirror/view"
 import {EditorState} from "@codemirror/state"
-import {StreamLanguage} from "@codemirror/language"
-import {shell} from "@codemirror/legacy-modes/mode/shell"
+import {buildReadonlyExtensions} from "@/utils/codemirror-utils"
 
 // 管理展开行的编辑器实例：key 为 rowId
 const editorMap = new Map()
-
-const readonlyTheme = EditorView.theme({
-  "&": {
-    fontSize: "13px",
-    fontFamily: "'Courier New', Courier, monospace",
-    border: "1px solid #dcdfe6",
-    borderRadius: "4px",
-    backgroundColor: "#fafafa"
-  },
-  ".cm-scroller": {overflow: "auto", maxHeight: "300px"},
-  ".cm-content": {caretColor: "transparent"},
-  ".cm-gutters": {
-    backgroundColor: "#f5f5f5",
-    color: "#aaa",
-    border: "none",
-    borderRight: "1px solid #e4e7ed"
-  },
-  ".cm-cursor": {display: "none"}
-}, {dark: false})
 
 function mountEditor(el, rowId, content) {
   if (!el) {
@@ -105,13 +84,7 @@ function mountEditor(el, rowId, content) {
   const view = new EditorView({
     state: EditorState.create({
       doc: content || "",
-      extensions: [
-        basicSetup,
-        StreamLanguage.define(shell),
-        readonlyTheme,
-        EditorState.readOnly.of(true),
-        EditorView.editable.of(false)
-      ]
+      extensions: buildReadonlyExtensions()
     }),
     parent: el
   })
