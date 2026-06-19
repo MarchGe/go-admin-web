@@ -32,7 +32,7 @@
       </template>
     </el-dialog>
     <!--分配权限弹框-->
-    <distribute-privileges v-model="x.showAssignPermissionDialog" :menu-tree="x.menuTree" :role-info="x.roleInfo" @success="search(x.currentPage)"></distribute-privileges>
+    <distribute-privileges v-model="x.showAssignPermissionDialog" :menu-tree="x.menuTree" :target-info="x.roleInfo" :submit-url="serverPaths.roleMenu(x.roleInfo.id)" @success="onAssignPermissionSuccess"></distribute-privileges>
   </div>
 </template>
 <script setup>
@@ -43,7 +43,7 @@ import uiUtils from "@/utils/ui-utils"
 import moment from "moment"
 import {serverPaths} from "@/settings"
 import UpsertDialog from "./component/upsert-dialog.vue"
-import DistributePrivileges from "./component/distribute-privileges.vue"
+import DistributePrivileges from "../component/distribute-privileges.vue"
 import httpUtils from "@/utils/http-utils"
 
 const x = reactive({
@@ -55,10 +55,6 @@ const x = reactive({
   defaultPageSize: 10,
   total: 0,
   tableData: [],
-  defaultProps: {
-    label: "name",
-    children: "children"
-  },
   showUpsertDialog: false,
   upsertMode: "add",
   showDeleteDialog: false,
@@ -142,6 +138,11 @@ function doDeleteRole() {
 function assignPermissionDialog(role) {
   x.roleInfo = JSON.parse(JSON.stringify(role))
   x.showAssignPermissionDialog = true
+}
+
+function onAssignPermissionSuccess(menuIds) {
+  x.roleInfo.menuIds = menuIds
+  search(x.currentPage)
 }
 </script>
 <style scoped src="../../../assets/css/sys/role.css">

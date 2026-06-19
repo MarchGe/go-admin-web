@@ -92,35 +92,14 @@
       </template>
     </el-dialog>
     <!--分配权限弹框-->
-    <el-dialog v-model="x.showAssignPermissionDialog" title="分配权限" width="30%">
-      <el-tree ref="permissionTree" :data="x.menuTree" node-key="id" :props="x.defaultProps" :default-checked-keys="x.userInfo.menuIds" :render-after-expand="false" show-checkbox check-strictly @checkChange="permissionsChange">
-        <template #default="{node, data}">
-          <div class="m-item">
-            <span class="i-left">
-              <span class="icon"><i :class="'iconfont icon-' + data.icon"></i></span>
-              <span class="label">{{ node.label + (data.symbol ? '（' + data.symbol + '）' : '') }}</span>
-            </span>
-          </div>
-        </template>
-      </el-tree>
-      <template #footer>
-        <div class="foot">
-          <span class="hint_v">
-            <span class="txt">共选中</span>
-            <span class="num">{{ x.permissionCount }}</span>
-            <span class="txt">项</span>
-          </span>
-          <el-button @click="x.showAssignPermissionDialog = false">取消</el-button>
-          <el-button type="primary" :loading="x.btnState.isLoading" @click="doAssignPermission">确定</el-button>
-        </div>
-      </template>
-    </el-dialog>
+    <distribute-privileges v-model="x.showAssignPermissionDialog" :menu-tree="x.menuTree" :target-info="x.userInfo" :submit-url="serverPaths.userMenu(x.userInfo.id)" @success="onAssignPermissionSuccess"></distribute-privileges>
   </div>
 </template>
 <script setup>
-import {onMounted, reactive, ref} from "vue"
+import {onMounted, reactive} from "vue"
 import UpsertDialog from "./component/upsert-dialog.vue"
 import UserDetail from "./component/user-detail.vue"
+import DistributePrivileges from "../component/distribute-privileges.vue"
 import {hasPermission} from "@/utils/permissions"
 import uiUtils from "@/utils/ui-utils"
 import moment from "moment"
@@ -152,17 +131,11 @@ const x = reactive({
   showUpdatePasswordDialog: false,
   newPassword: "",
   showAssignPermissionDialog: false,
-  defaultProps: {
-    label: "name",
-    children: "children"
-  },
   roleList: [],
   menuTree: [],
-  permissionCount: 0,
   deptTree: [],
   jobList: []
 })
-const permissionTree = ref()
 
 onMounted(() => {
   search(1)
@@ -315,7 +288,6 @@ function changeUserStatusEnable() {
 
 function userDetail(user) {
   x.userInfo = JSON.parse(JSON.stringify(user))
-  x.permissionCount = x.userInfo.menuIds.length
   x.showUserDialog = true
 }
 
@@ -384,29 +356,13 @@ function doUpdatePassword() {
 }
 
 function assignPermissionDialog() {
-  if (permissionTree.value) {
-    permissionTree.value.setCheckedKeys([])
-  }
-  x.userInfo.menuIds = [...x.userInfo.menuIds]  // 重新赋值是为了触发模板响应数据变化
-  x.permissionCount = x.userInfo.menuIds.length
+  x.userInfo.menuIds = [...x.userInfo.menuIds]
   x.showAssignPermissionDialog = true
 }
 
-function doAssignPermission() {
-  x.btnState.loading()
-  x.userInfo.menuIds = permissionTree.value.getCheckedKeys()
-  httpUtils.put(serverPaths.userMenu(x.userInfo.id), {ids: x.userInfo.menuIds}, function () {
-    x.btnState.unLoading()
-    x.showAssignPermissionDialog = false
-    uiUtils.showToast("success", "权限分配成功")
-    search(x.currentPage)
-  }, () => {
-    x.btnState.unLoading()
-  })
-}
-
-function permissionsChange() {
-  x.permissionCount = permissionTree.value.getCheckedKeys().length
+function onAssignPermissionSuccess(menuIds) {
+  x.userInfo.menuIds = menuIds
+  search(x.currentPage)
 }
 </script>
 <style scoped src="../../../assets/css/sys/users.css">

@@ -1,6 +1,6 @@
 <template>
   <el-dialog v-model="visible" title="分配权限" width="30%">
-    <el-tree ref="permissionTree" :data="menuTree" node-key="id" :props="defaultProps" :default-checked-keys="roleInfo.menuIds" :render-after-expand="false" show-checkbox check-strictly @check-change="permissionsChange">
+    <el-tree ref="permissionTree" :data="menuTree" node-key="id" :props="defaultProps" :default-checked-keys="targetInfo.menuIds" :render-after-expand="false" show-checkbox check-strictly @check-change="permissionsChange">
       <template #default="{node, data}">
         <div class="m-item">
           <span class="i-left">
@@ -24,10 +24,9 @@
   </el-dialog>
 </template>
 <script setup>
-import {computed, ref, watch} from "vue"
+import {computed, nextTick, ref, watch} from "vue"
 import httpUtil from "@/utils/http-utils"
 import uiUtils from "@/utils/ui-utils"
-import {serverPaths} from "@/settings"
 
 const props = defineProps({
   modelValue: {
@@ -38,9 +37,13 @@ const props = defineProps({
     type: Array,
     default: () => []
   },
-  roleInfo: {
+  targetInfo: {
     type: Object,
     default: () => ({})
+  },
+  submitUrl: {
+    type: String,
+    default: ""
   }
 })
 
@@ -62,10 +65,13 @@ const permissionTree = ref()
 
 watch(() => props.modelValue, (val) => {
   if (val) {
-    if (permissionTree.value) {
-      permissionTree.value.setCheckedKeys([])
-    }
-    permissionCount.value = props.roleInfo.menuIds ? props.roleInfo.menuIds.length : 0
+    const menuIds = props.targetInfo.menuIds || []
+    permissionCount.value = menuIds.length
+    nextTick(() => {
+      if (permissionTree.value) {
+        permissionTree.value.setCheckedKeys(menuIds)
+      }
+    })
   }
 })
 
@@ -76,15 +82,15 @@ function permissionsChange() {
 function doAssignPermission() {
   isLoading.value = true
   const menuIds = permissionTree.value.getCheckedKeys()
-  httpUtil.put(serverPaths.roleMenu(props.roleInfo.id), {ids: menuIds}, function () {
+  httpUtil.put(props.submitUrl, {ids: menuIds}, function () {
     isLoading.value = false
     visible.value = false
     uiUtils.showToast("success", "权限分配成功")
-    emit("success")
+    emit("success", menuIds)
   }, () => {
     isLoading.value = false
   })
 }
 </script>
-<style scoped src="../../../../assets/css/sys/role.css">
+<style scoped src="../../../assets/css/sys/role.css">
 </style>
