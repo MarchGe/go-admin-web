@@ -5,7 +5,7 @@
       <el-input class="item" type="text" v-model="x.searchItems.keyword" maxlength="20" clearable style="width: 260px; margin-right: 15px;">
         <template #prepend>关键字</template>
       </el-input>
-      <el-button type="primary" icon="Search" @click="search">搜索</el-button>
+      <el-button type="primary" icon="Search" @click="search(1)">搜索</el-button>
       <el-button type="primary" icon="Plus" :disabled="!hasPermission('job:add')" @click="addDialog">新增</el-button>
     </div>
     <!--表格数据-->
@@ -20,33 +20,9 @@
         </template>
       </el-table-column>
     </el-table>
-    <el-pagination class="pagination" :default-page-size="x.defaultPageSize" v-model:current-page="x.currentPage" background :total="x.total" layout="prev, pager, next" @update:current-page="pageChanged"></el-pagination>
-    <!--新增弹框-->
-    <el-dialog v-model="x.showAddDialog" title="添加岗位" width="30%">
-      <el-input v-model="x.jobInfo.name" placeholder="填写岗位名称" maxlength="20"></el-input>
-      <el-input v-model="x.jobInfo.description" type="textarea" placeholder="填写岗位描述（可选）" maxlength="200" :rows="5" resize="none" show-word-limit style="margin-top: 20px;"></el-input>
-      <div style="margin-top: 10px;">
-        <span>排序：</span>
-        <el-input-number v-model="x.jobInfo.sortNum" :min="0"></el-input-number>
-      </div>
-      <template #footer>
-        <el-button @click="x.showAddDialog = false">取消</el-button>
-        <el-button type="primary" :loading="x.btnState.isLoading" @click="doAddJob">确定</el-button>
-      </template>
-    </el-dialog>
-    <!--编辑弹框-->
-    <el-dialog v-model="x.showUpdateDialog" title="修改岗位" width="30%">
-      <el-input v-model="x.jobInfo.name" placeholder="填写岗位名称" maxlength="20"></el-input>
-      <el-input v-model="x.jobInfo.description" type="textarea" placeholder="填写岗位描述（可选）" maxlength="200" :rows="5" resize="none" show-word-limit style="margin-top: 20px;"></el-input>
-      <div style="margin-top: 10px;">
-        <span>排序：</span>
-        <el-input-number v-model="x.jobInfo.sortNum" :min="0"></el-input-number>
-      </div>
-      <template #footer>
-        <el-button @click="x.showUpdateDialog = false">取消</el-button>
-        <el-button type="primary" :loading="x.btnState.isLoading" @click="doUpdateJob">确定</el-button>
-      </template>
-    </el-dialog>
+    <el-pagination class="pagination" :default-page-size="x.defaultPageSize" v-model:current-page="x.currentPage" background :total="x.total" layout="prev, pager, next" @update:current-page="search"></el-pagination>
+    <!--新增/编辑弹框-->
+    <UpsertDialog v-model="x.showUpsertDialog" :mode="x.upsertMode" :data="x.jobInfo" @success="search(x.currentPage)"></UpsertDialog>
     <!--删除弹框-->
     <el-dialog v-model="x.showDeleteDialog" title="操作提示" width="30%">
       <span>删除后不可恢复，是否确定删除 ？</span>
@@ -64,6 +40,7 @@ import httpUtil from "@/utils/http-utils"
 import uiUtils from "@/utils/ui-utils"
 import moment from "moment"
 import {serverPaths} from "@/settings"
+import UpsertDialog from "./component/upsert-dialog.vue"
 
 const x = reactive({
   btnState: uiUtils.buttonState(),
@@ -74,17 +51,17 @@ const x = reactive({
   defaultPageSize: 10,
   total: 0,
   tableData: [],
-  showAddDialog: false,
+  showUpsertDialog: false,
+  upsertMode: "add",
   showDeleteDialog: false,
-  showUpdateDialog: false,
   jobInfo: {},
 })
 
 onMounted(() => {
-  search()
+  search(1)
 })
 
-function pageChanged(page) {
+function search(page) {
   let params = x.searchItems
   params.page = page
   params.pageSize = x.defaultPageSize
@@ -110,48 +87,16 @@ function pageChanged(page) {
   })
 }
 
-function search() {
-  if (x.currentPage === 1) {
-    pageChanged(1)
-  } else {
-    x.currentPage = 1
-  }
-}
-
 function addDialog() {
-  x.jobInfo = {
-    sortNum: 0
-  }
-  x.showAddDialog = true
-}
-
-function doAddJob() {
-  x.btnState.loading()
-  httpUtil.post(serverPaths.jobAdd, x.jobInfo, function () {
-    x.btnState.unLoading()
-    x.showAddDialog = false
-    uiUtils.showToast("success", "添加成功")
-    pageChanged(x.currentPage)
-  }, () => {
-    x.btnState.unLoading()
-  })
+  x.jobInfo = {}
+  x.upsertMode = "add"
+  x.showUpsertDialog = true
 }
 
 function updateDialog(job) {
   x.jobInfo = JSON.parse(JSON.stringify(job))
-  x.showUpdateDialog = true
-}
-
-function doUpdateJob() {
-  x.btnState.loading()
-  httpUtil.put(serverPaths.jobUpdate(x.jobInfo.id), x.jobInfo, function () {
-    x.btnState.unLoading()
-    x.showUpdateDialog = false
-    uiUtils.showToast("success", "修改成功")
-    pageChanged(x.currentPage)
-  }, () => {
-    x.btnState.unLoading()
-  })
+  x.upsertMode = "update"
+  x.showUpsertDialog = true
 }
 
 function deleteDialog(job) {
@@ -165,7 +110,7 @@ function doDeleteJob() {
     x.btnState.unLoading()
     x.showDeleteDialog = false
     uiUtils.showToast("success", "删除成功")
-    pageChanged(x.currentPage)
+    search(x.currentPage)
   }, () => {
     x.btnState.unLoading()
   })
